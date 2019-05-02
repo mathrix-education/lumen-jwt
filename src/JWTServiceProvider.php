@@ -70,9 +70,7 @@ class JWTServiceProvider extends ServiceProvider
 
             /** @var Builder $builder */
             $builder = $userClass::query();
-            $user = $builder->where("id", "=", $sub)->first();
-
-            return $user;
+            return $builder->where("id", "=", $sub)->first();
         });
 
         $this->app->routeMiddleware([

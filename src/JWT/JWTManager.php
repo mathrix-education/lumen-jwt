@@ -16,6 +16,17 @@ use Jose\Component\KeyManagement\JWKFactory;
 abstract class JWTManager
 {
     /**
+     * Get the public JWK.
+     *
+     * @return JWK
+     */
+    public static function getJWKPublic()
+    {
+        return self::getJWK()->toPublic();
+    }
+
+
+    /**
      * Get the JWK.
      *
      * @return JWK|JWKSet
@@ -25,16 +36,5 @@ abstract class JWTManager
         return JWKFactory::createFromJsonObject(
             file_get_contents(config("jwt_auth.key.path"))
         );
-    }
-
-
-    /**
-     * Get the public JWK.
-     *
-     * @return JWK
-     */
-    public static function getJWKPublic()
-    {
-        return self::getJWK()->toPublic();
     }
 }

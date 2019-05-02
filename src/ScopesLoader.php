@@ -16,6 +16,16 @@ class ScopesLoader
     private static $loadedScopes;
 
 
+    public static function getRegisteredScopes()
+    {
+        if (!is_array(self::$loadedScopes)) {
+            self::loadScopes();
+        }
+
+        return self::$loadedScopes;
+    }
+
+
     private static function loadScopes()
     {
         self::$loadedScopes = Collection::make(app()->router->getRoutes())
@@ -42,16 +52,6 @@ class ScopesLoader
             ->sort()
             ->values()
             ->toArray();
-    }
-
-
-    public static function getRegisteredScopes()
-    {
-        if (!is_array(self::$loadedScopes)) {
-            self::loadScopes();
-        }
-
-        return self::$loadedScopes;
     }
 
 

@@ -4,13 +4,13 @@ namespace Mathrix\Lumen\JWT\Auth\JWT;
 
 use Carbon\Carbon;
 use Exception;
-use Faker\Provider\Uuid;
 use Jose\Component\Core\Algorithm;
 use Jose\Component\Core\AlgorithmManager;
 use Jose\Component\Signature\JWS;
 use Jose\Component\Signature\JWSBuilder;
 use Jose\Component\Signature\Serializer\Serializer;
 use Mathrix\Lumen\JWT\Auth\HasJWT;
+use Ramsey\Uuid\Uuid;
 
 /**
  * Class JWTIssuer.
@@ -22,28 +22,18 @@ use Mathrix\Lumen\JWT\Auth\HasJWT;
 class JWTIssuer extends JWTManager
 {
     /**
-     * Get the JWS payload.
+     * Issue a serialized JWS
      *
-     * @param HasJWT $user
+     * @param HasJWT $user The user who belongs the JWS.
      *
-     * @return string
+     * @return string The serialized JWS.
+     * @throws Exception
      */
-    private static function getPayload($user): string
+    public static function issueJWSSerialized($user): string
     {
-        $now = Carbon::now();
+        $jws = self::issueJWS($user);
 
-        $payload = json_encode([
-            "iss" => config("jwt_auth.jwt.iss"),
-            "sub" => $user->getSubject(),
-            "aud" => config("jwt_auth.jwt.aud"),
-            "exp" => $now->copy()->addMonth(3)->timestamp,
-            "nbf" => $now->timestamp,
-            "iat" => $now->timestamp,
-            "jti" => Uuid::uuid(),
-            "scopes" => $user->getScopes()
-        ]);
-
-        return $payload;
+        return self::serializeJWS($jws);
     }
 
 
@@ -51,21 +41,45 @@ class JWTIssuer extends JWTManager
      * @param HasJWT $user
      *
      * @return JWS
+     * @throws Exception
      */
     public static function issueJWS($user): JWS
     {
         $jwk = self::getJWK();
         $jwsBuilder = new JWSBuilder(null, app()->make(AlgorithmManager::class));
 
-        $jws = $jwsBuilder->create()
+        return $jwsBuilder->create()
             ->withPayload(self::getPayload($user))
             ->addSignature($jwk, [
                 "typ" => "JWT",
                 "alg" => class_basename(app()->make(Algorithm::class))
             ])
             ->build();
+    }
 
-        return $jws;
+
+    /**
+     * Get the JWS payload.
+     *
+     * @param HasJWT $user
+     *
+     * @return string
+     * @throws Exception
+     */
+    private static function getPayload($user): string
+    {
+        $now = Carbon::now();
+
+        return json_encode([
+            "iss" => config("jwt_auth.jwt.iss"),
+            "sub" => $user->getSubject(),
+            "aud" => config("jwt_auth.jwt.aud"),
+            "exp" => $now->copy()->addMonth(3)->timestamp,
+            "nbf" => $now->timestamp,
+            "iat" => $now->timestamp,
+            "jti" => Uuid::uuid4(),
+            "scopes" => $user->getScopes()
+        ]);
     }
 
 
@@ -83,21 +97,5 @@ class JWTIssuer extends JWTManager
         $serializer = app()->make(Serializer::class);
 
         return $serializer->serialize($jws);
-    }
-
-
-    /**
-     * Issue a serialized JWS
-     *
-     * @param HasJWT $user The user who belongs the JWS.
-     *
-     * @return string The serialized JWS.
-     * @throws Exception
-     */
-    public static function issueJWSSerialized($user): string
-    {
-        $jws = self::issueJWS($user);
-
-        return self::serializeJWS($jws);
     }
 }

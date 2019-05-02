@@ -4,7 +4,6 @@
 namespace Mathrix\Lumen\JWT\Auth;
 
 use Carbon\Carbon;
-use Exception;
 
 /**
  * Trait HasJWTEloquent.
@@ -33,18 +32,6 @@ trait HasJWT
 
 
     /**
-     * Get the subject scopes. The method can be directly be personalized by declaring the method getScopes().
-     * The value will be injected in the "scopes" token claim.
-     *
-     * @return mixed
-     */
-    public function getScopes()
-    {
-        return $this->scopes ?? [];
-    }
-
-
-    /**
      * Check if the user has the given scope.
      *
      * @param string $scope The scope
@@ -60,5 +47,17 @@ trait HasJWT
         }
 
         return in_array($scope, $scopes);
+    }
+
+
+    /**
+     * Get the subject scopes. The method can be directly be personalized by declaring the method getScopes().
+     * The value will be injected in the "scopes" token claim.
+     *
+     * @return mixed
+     */
+    public function getScopes()
+    {
+        return $this->scopes ?? [];
     }
 }
