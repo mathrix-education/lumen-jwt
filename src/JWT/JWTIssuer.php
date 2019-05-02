@@ -77,8 +77,7 @@ class JWTIssuer extends JWTManager
             "exp" => $now->copy()->addMonth(3)->timestamp,
             "nbf" => $now->timestamp,
             "iat" => $now->timestamp,
-            "jti" => Uuid::uuid4(),
-            "scopes" => $user->getScopes()
+            "jti" => Uuid::uuid4()
         ]);
     }
 
