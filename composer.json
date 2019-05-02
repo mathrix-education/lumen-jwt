@@ -1,0 +1,65 @@
+{
+  "name": "mathrix/lumen-jwt-auth",
+  "description": "A small library to handle authentication using JWT.",
+  "version": "1.0.0",
+  "type": "library",
+  "keywords": [
+    "mathrix",
+    "php",
+    "lumen",
+    "jwt",
+    "authentication"
+  ],
+  "homepage": "https://github.com/mathrix-education/lumen-jwt-auth",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "Mathieu Bour",
+      "email": "mathieu@mathrix.fr",
+      "homepage": "https://www.linkedin.com/in/mathieu-bour",
+      "role": "Developer"
+    }
+  ],
+  "support": {
+    "email": "mathieu@mathrix.fr",
+    "issues": "https://github.com/mathrix-education/lumen-jwt-auth/issues",
+    "wiki": "https://github.com/mathrix-education/lumen-jwt-auth/wiki",
+    "source": "https://github.com/mathrix-education/lumen-jwt-auth",
+    "docs": "https://github.com/mathrix-education/lumen-jwt-auth/wiki"
+  },
+  "require": {
+    "php": ">=7.2",
+    "mathrix/lumen-zero": "dev-master",
+    "web-token/jwt-core": "^1.3",
+    "web-token/jwt-key-mgmt": "^1.3",
+    "web-token/jwt-signature-algorithm-rsa": "^1.3",
+    "web-token/jwt-signature-algorithm-ecdsa": "^1.3"
+  },
+  "require-dev": {
+    "brianium/paratest": "^2.0",
+    "phpunit/phpunit": "^7.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Mathrix\\Lumen\\JWT\\Auth\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "repositories": [
+    {
+      "type": "git",
+      "url": "git@github.com:mathrix-education/lumen-zero.git"
+    }
+  ],
+  "config": {
+    "preferred-install": "dist",
+    "sort-packages": true,
+    "optimize-autoloader": true
+  }
+}

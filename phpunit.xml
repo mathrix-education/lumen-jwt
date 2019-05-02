@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/7.3/phpunit.xsd"
+    bootstrap="bootstrap/app.php"
+    colors="true">
+    <testsuites>
+        <testsuite name="REST API Test Suite">
+            <directory>./tests/API</directory>
+        </testsuite>
+        <testsuite name="Unit Test Suite">
+            <directory>./tests/Unit</directory>
+        </testsuite>
+        <testsuite name="Braintree Test Suite">
+            <directory>./tests/Integration/Braintree</directory>
+        </testsuite>
+        <testsuite name="Google Cloud Storage Test Suite">
+            <directory>./tests/Integration/GoogleCloud</directory>
+        </testsuite>
+    </testsuites>
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">./app</directory>
+            <exclude>
+                <directory>./app/Console</directory>
+            </exclude>
+        </whitelist>
+    </filter>
+</phpunit>
