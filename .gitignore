@@ -1,4 +1,4 @@
-/.env
+composer.lock
 
 # User-specific stuff:
 /.idea/*.iml
