@@ -5,6 +5,7 @@ namespace Mathrix\Lumen\JWT\Auth;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\ServiceProvider;
+use InvalidArgumentException;
 use Jose\Component\Core\Algorithm;
 use Jose\Component\Core\AlgorithmManager;
 use Jose\Component\Signature\Serializer\CompactSerializer;
@@ -51,7 +52,14 @@ class JWTServiceProvider extends ServiceProvider
 
             /** @var JWTVerifier $jwtVerifier */
             $jwtVerifier = app()->make(JWTVerifier::class);
-            $verified = $jwtVerifier->verify($token);
+
+            $verified = false;
+
+            try {
+                $verified = $jwtVerifier->verify($token);
+            } catch (InvalidArgumentException $e) {
+                // Do nothing, token is invalid
+            }
 
             if (!$verified) {
                 throw new InvalidJWTException();
