@@ -39,7 +39,7 @@ class ScopesLoader
                 $foundScope = null;
 
                 Collection::make($middleware)->each(function ($params) use (&$foundScope) {
-                    preg_match('/scope:([a-z\-]+)/', $params, $matches);
+                    preg_match('/scope:([a-z\-\:]+)/', $params, $matches);
                     $foundScope = $matches[1] ?? null;
                 });
 
