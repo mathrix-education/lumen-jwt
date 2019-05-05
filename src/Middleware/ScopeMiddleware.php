@@ -33,7 +33,7 @@ class ScopeMiddleware
      */
     public function handle(Request $request, Closure $next, string $scope)
     {
-        if ($request->user() === null || !$request->user()->tokenCan($scope)) {
+        if ($request->user() === null || !$request->user()->hasScope($scope)) {
             throw new MissingScopeException($scope, $request->url());
         }
 

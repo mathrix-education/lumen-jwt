@@ -1,7 +1,7 @@
 {
   "name": "mathrix/lumen-jwt-auth",
   "description": "A small library to handle authentication using JWT.",
-  "version": "1.1.7",
+  "version": "1.1.8",
   "type": "library",
   "keywords": [
     "mathrix",
