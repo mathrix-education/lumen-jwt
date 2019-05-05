@@ -13,6 +13,6 @@ use Mathrix\Lumen\Exceptions\Http\Http401UnauthorizedException;
  */
 class InvalidJWTException extends Http401UnauthorizedException
 {
-    protected $error = "invalid_jwt_exception";
+    protected $error = "invalid_jwt";
     protected $message = "The given JWT is invalid";
 }
