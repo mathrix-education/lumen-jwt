@@ -32,13 +32,24 @@ trait HasJWT
 
 
     /**
+     * @param string $scope
+     * @return bool
+     * @deprecated User HasJWT::hasScope instead
+     */
+    public function tokenCan(string $scope): bool
+    {
+        return $this->hasScope($scope);
+    }
+
+
+    /**
      * Check if the user has the given scope.
      *
      * @param string $scope The scope
      *
      * @return bool
      */
-    public function tokenCan(string $scope)
+    public function hasScope(string $scope): bool
     {
         $scopes = $this->getScopes();
 
@@ -56,7 +67,7 @@ trait HasJWT
      *
      * @return mixed
      */
-    public function getScopes()
+    public function getScopes(): array
     {
         return $this->scopes ?? [];
     }
