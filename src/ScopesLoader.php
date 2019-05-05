@@ -45,18 +45,12 @@ class ScopesLoader
 
                 return $foundScope;
             })
-            ->filter(function (string $scope) {
+            ->filter(function (?string $scope) {
                 return $scope !== null;
             })
             ->unique()
             ->sort()
             ->values()
             ->toArray();
-    }
-
-
-    public static function autoMockScope()
-    {
-
     }
 }

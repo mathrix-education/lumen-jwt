@@ -21,17 +21,12 @@ use Mathrix\Lumen\JWT\Auth\Middleware\ScopeMiddleware;
  *
  * @author Mathieu Bour <mathieu@mathrix.fr>
  * @copyright Mathrix Education SA.
- * @since 1.0.0use Laravel\Lumen\Application;
+ * @since 1.0.0
  *
  * @property Application $app
  */
 class JWTServiceProvider extends ServiceProvider
 {
-    public function boot()
-    {
-    }
-
-
     public function register()
     {
         $this->mergeConfigFrom(__DIR__ . "/../config/jwt_auth.php", "jwt_auth");
