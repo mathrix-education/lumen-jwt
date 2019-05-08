@@ -25,20 +25,23 @@ class JWTIssuer extends JWTManager
      * Issue a serialized JWS
      *
      * @param HasJWT $user The user who belongs the JWS.
+     * @param array $custom
      *
      * @return string The serialized JWS.
      * @throws Exception
      */
-    public static function issueJWSSerialized($user): string
+    public static function issueJWSSerialized($user, array $custom = []): string
     {
-        $jws = self::issueJWS($user);
+        $jws = self::issueJWS($user, $custom);
 
         return self::serializeJWS($jws);
     }
 
 
     /**
-     * @param HasJWT $user
+     * Issue a JWS
+     *
+     * @param HasJWT $user The user who belongs the JWS.
      * @param array $custom
      *
      * @return JWS
@@ -62,7 +65,7 @@ class JWTIssuer extends JWTManager
     /**
      * Get the JWS payload.
      *
-     * @param HasJWT $user
+     * @param HasJWT $user The user who belongs the JWS.
      * @param array $custom
      *
      * @return string
@@ -80,7 +83,7 @@ class JWTIssuer extends JWTManager
             "iat" => $now->timestamp,
             "jti" => Uuid::uuid4()
         ];
-        $payload = array_merge_recursive($standard, $custom);
+        $payload = array_replace_recursive($standard, $custom);
 
         return json_encode($payload);
     }
