@@ -39,17 +39,18 @@ class JWTIssuer extends JWTManager
 
     /**
      * @param HasJWT $user
+     * @param array $custom
      *
      * @return JWS
      * @throws Exception
      */
-    public static function issueJWS($user): JWS
+    public static function issueJWS($user, array $custom = []): JWS
     {
         $jwk = self::getJWK();
         $jwsBuilder = new JWSBuilder(null, app()->make(AlgorithmManager::class));
 
         return $jwsBuilder->create()
-            ->withPayload(self::getPayload($user))
+            ->withPayload(self::getPayload($user, $custom))
             ->addSignature($jwk, [
                 "typ" => "JWT",
                 "alg" => class_basename(app()->make(Algorithm::class))
@@ -62,15 +63,15 @@ class JWTIssuer extends JWTManager
      * Get the JWS payload.
      *
      * @param HasJWT $user
+     * @param array $custom
      *
      * @return string
      * @throws Exception
      */
-    private static function getPayload($user): string
+    private static function getPayload($user, array $custom): string
     {
         $now = Carbon::now();
-
-        return json_encode([
+        $standard = [
             "iss" => config("jwt_auth.jwt.iss"),
             "sub" => $user->getSubject(),
             "aud" => config("jwt_auth.jwt.aud"),
@@ -78,7 +79,10 @@ class JWTIssuer extends JWTManager
             "nbf" => $now->timestamp,
             "iat" => $now->timestamp,
             "jti" => Uuid::uuid4()
-        ]);
+        ];
+        $payload = array_merge_recursive($standard, $custom);
+
+        return json_encode($payload);
     }
 
 
