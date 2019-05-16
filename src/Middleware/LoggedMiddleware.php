@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Middleware;
+namespace Mathrix\Lumen\JWT\Auth\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;

@@ -2,7 +2,6 @@
 
 namespace Mathrix\Lumen\JWT\Auth;
 
-use App\Middleware\LoggedMiddleware;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\ServiceProvider;
@@ -15,6 +14,7 @@ use Laravel\Lumen\Application;
 use Mathrix\Lumen\JWT\Auth\Commands\JWTKeyCommand;
 use Mathrix\Lumen\JWT\Auth\Exceptions\InvalidJWTException;
 use Mathrix\Lumen\JWT\Auth\JWT\JWTVerifier;
+use Mathrix\Lumen\JWT\Auth\Middleware\LoggedMiddleware;
 use Mathrix\Lumen\JWT\Auth\Middleware\ScopeMiddleware;
 
 /**
