@@ -2,6 +2,7 @@
 
 namespace Mathrix\Lumen\JWT\Auth;
 
+use App\Middleware\LoggedMiddleware;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\ServiceProvider;
@@ -73,10 +74,12 @@ class JWTServiceProvider extends ServiceProvider
 
             /** @var Builder $builder */
             $builder = $userClass::query();
+
             return $builder->where("id", "=", $sub)->first();
         });
 
         $this->app->routeMiddleware([
+            LoggedMiddleware::$key => LoggedMiddleware::class,
             ScopeMiddleware::$key => ScopeMiddleware::class
         ]);
     }

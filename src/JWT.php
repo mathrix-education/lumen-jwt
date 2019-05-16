@@ -7,7 +7,7 @@ use FastRoute\RouteCollector;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
-use Mathrix\Lumen\Bases\BaseModel;
+use Mathrix\Lumen\Zero\Models\BaseModel;
 use function FastRoute\simpleDispatcher;
 
 /**
@@ -34,6 +34,7 @@ class JWT
     public static function autoScope(string $method, string $uri)
     {
         $scopes = self::getScopes($method, $uri);
+
         return self::withScopes(...$scopes);
     }
 

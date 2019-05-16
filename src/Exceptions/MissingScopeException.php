@@ -2,7 +2,7 @@
 
 namespace Mathrix\Lumen\JWT\Auth\Exceptions;
 
-use Mathrix\Lumen\Exceptions\Http\Http401UnauthorizedException;
+use Mathrix\Lumen\Zero\Exceptions\Http\Http401UnauthorizedException;
 use Throwable;
 
 /**
@@ -14,9 +14,6 @@ use Throwable;
  */
 class MissingScopeException extends Http401UnauthorizedException
 {
-    protected const ERROR = "missing_scope";
-
-
     public function __construct(string $scope, string $route, Throwable $previous = null)
     {
         parent::__construct([

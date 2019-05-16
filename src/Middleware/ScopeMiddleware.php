@@ -4,8 +4,8 @@ namespace Mathrix\Lumen\JWT\Auth\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Mathrix\Lumen\Exceptions\Http\Http401UnauthorizedException;
 use Mathrix\Lumen\JWT\Auth\Exceptions\MissingScopeException;
+use Mathrix\Lumen\Zero\Exceptions\Http\Http401UnauthorizedException;
 
 /**
  * Class ScopeMiddleware.

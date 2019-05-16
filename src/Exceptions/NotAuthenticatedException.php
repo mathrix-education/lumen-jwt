@@ -5,13 +5,13 @@ namespace Mathrix\Lumen\JWT\Auth\Exceptions;
 use Mathrix\Lumen\Zero\Exceptions\Http\Http401UnauthorizedException;
 
 /**
- * Class InvalidCredentialsException.
+ * Class NotAuthenticatedException.
  *
  * @author Mathieu Bour <mathieu@mathrix.fr>
  * @copyright Mathrix Education SA.
- * @since
+ * @since 0.9.3-dev
  */
-class InvalidCredentialsException extends Http401UnauthorizedException
+class NotAuthenticatedException extends Http401UnauthorizedException
 {
-    protected $message = "The given credentials were invalid.";
+    protected $message = "This route requires authentication.";
 }
