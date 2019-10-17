@@ -22,22 +22,9 @@ jobs:
   test:
     name: Test with PHPUnit
     runs-on: ubuntu-latest
-    services:
-      mysql:
-        image: mysql:5.7
-        env:
-          MYSQL_DATABASE: mathrix_education_testing
-          MYSQL_ROOT_PASSWORD: '123456'
-        ports:
-          - 3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
     steps:
       - name: Checkout
         uses: actions/checkout@v1
-      - name: Setup Google Cloud
-        env:
-          GCLOUD_AUTH: ${{ secrets.GCLOUD_AUTH }}
-        run: printenv GCLOUD_AUTH | base64 -d > storage/keychain/service_account.json
       - name: Setup PHP
         uses: shivammathur/setup-php@1.3.9
         with:
