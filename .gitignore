@@ -10,7 +10,8 @@ composer.lock
 /.idea/deployment.xml
 /.idea/php.xml
 
-/node_modules/
-/vendor/
 /artifacts
+/node_modules/
+/sandbox
+/vendor
 

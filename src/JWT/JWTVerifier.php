@@ -1,35 +1,34 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Mathrix\Lumen\JWT\Auth\JWT;
 
-use Exception;
 use Jose\Component\Core\AlgorithmManager;
 use Jose\Component\Signature\JWSVerifier;
 use Jose\Component\Signature\Serializer\Serializer;
+use function app;
 
 /**
- * Class JWTVerifier.
- *
- * @author Mathieu Bour <mathieu@mathrix.fr>
- * @copyright Mathrix Education SA.
- * @since 1.0.0
+ * Allow application to verify JWT.
  */
 class JWTVerifier extends JWTManager
 {
     /**
+     * Verify a serialized JWT.
+     *
      * @param string $token The serialized token string.
      *
      * @return bool
-     * @throws Exception
      */
-    public static function verify(string $token)
+    public function verify(string $token): bool
     {
-        $jwk = self::getJWK();
+        $jwk         = $this->getJWK();
         $jwsVerifier = new JWSVerifier(app()->make(AlgorithmManager::class));
 
         /** @var Serializer $serializer */
         $serializer = app()->make(Serializer::class);
-        $jws = $serializer->unserialize($token);
+        $jws        = $serializer->unserialize($token);
 
         return $jwsVerifier->verifyWithKey($jws, $jwk, 0);
     }
