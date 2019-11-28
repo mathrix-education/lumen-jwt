@@ -1,46 +1,50 @@
 <?php
 
+declare(strict_types=1);
 
 namespace Mathrix\Lumen\JWT\Auth;
 
-use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
+use function array_search;
+use function in_array;
 
 /**
- * Trait HasJWTEloquent.
- *
- * @author Mathieu Bour <mathieu@mathrix.fr>
- * @copyright Mathrix Education SA.
- * @since 1.0.0
- *
- * @property int $id The user id.
- * @property Carbon $revoke_token_prior_to
- * @property array $scopes The user scopes.
+ * @mixin Model
  */
 trait HasJWT
 {
+    /** @var string The attribute used to forge the "sub" claim of the JWT */
+    protected $jwtSubAttribute = null;
+    /** @var string The attribute which represents the user scopes. */
+    protected $jwtScopesAttribute = 'scopes';
+
     /**
      * Get the subject of the JWT token; in most cases, it is the user id.
      * The value will be injected in the "sub" token claim.
      *
      * @link https://tools.ietf.org/html/rfc7519#section-4.1.2
-     * @return mixed
+     *
+     * @return int|string
      */
     public function getSubject()
     {
-        return $this->id;
-    }
+        if ($this->jwtSubAttribute !== null) {
+            return $this->getAttribute($this->jwtSubAttribute);
+        }
 
+        return $this->getKey();
+    }
 
     /**
-     * @param string $scope
-     * @return bool
-     * @deprecated User HasJWT::hasScope instead
+     * Get the subject scopes. The method can be directly be personalized by declaring the method getScopes().
+     * The value will be injected in the "scopes" token claim.
+     *
+     * @return mixed
      */
-    public function tokenCan(string $scope): bool
+    public function getScopes(): array
     {
-        return $this->hasScope($scope);
+        return $this->getAttribute($this->jwtScopesAttribute) ?? [];
     }
-
 
     /**
      * Check if the user has the given scope.
@@ -53,22 +57,10 @@ trait HasJWT
     {
         $scopes = $this->getScopes();
 
-        if (array_search("*", $scopes) !== false) {
+        if (array_search('*', $scopes) !== false) {
             return true;
         }
 
         return in_array($scope, $scopes);
-    }
-
-
-    /**
-     * Get the subject scopes. The method can be directly be personalized by declaring the method getScopes().
-     * The value will be injected in the "scopes" token claim.
-     *
-     * @return mixed
-     */
-    public function getScopes(): array
-    {
-        return $this->scopes ?? [];
     }
 }

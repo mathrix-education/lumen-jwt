@@ -1,40 +1,47 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Mathrix\Lumen\JWT\Auth\JWT;
 
 use Jose\Component\Core\JWK;
 use Jose\Component\Core\JWKSet;
 use Jose\Component\KeyManagement\JWKFactory;
+use function config;
+use function file_get_contents;
 
 /**
- * Class JWTManager.
- *
- * @author Mathieu Bour <mathieu@mathrix.fr>
- * @copyright Mathrix Education SA.
- * @since 1.0.0
+ * Base class to interact with the stored JWK.
  */
 abstract class JWTManager
 {
     /**
-     * Get the public JWK.
+     * Get the JWK path.
      *
-     * @return JWK
+     * @return string
      */
-    public static function getJWKPublic()
+    public function getJWKPath(): string
     {
-        return self::getJWK()->toPublic();
+        return config('jwt_auth.key.path');
     }
-
 
     /**
      * Get the JWK.
      *
      * @return JWK|JWKSet
      */
-    protected static function getJWK()
+    protected function getJWK(): JWK
     {
-        return JWKFactory::createFromJsonObject(
-            file_get_contents(config("jwt_auth.key.path"))
-        );
+        return JWKFactory::createFromJsonObject(file_get_contents($this->getJWKPath()));
+    }
+
+    /**
+     * Get the public JWK.
+     *
+     * @return JWK
+     */
+    public function getJWKPublic(): JWK
+    {
+        return $this->getJWK()->toPublic();
     }
 }
