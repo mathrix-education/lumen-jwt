@@ -10,8 +10,6 @@ use Mathrix\Lumen\JWT\Auth\Commands\JWTKeyCommand;
 use Mathrix\Lumen\JWT\Auth\HasJWT;
 use Mathrix\Lumen\JWT\Auth\JWT\JWTIssuer;
 use Mathrix\Lumen\JWT\Auth\Tests\SandboxTestCase;
-use Mathrix\Lumen\Zero\Testing\Traits\Reflector;
-use ReflectionException;
 use function count;
 use function explode;
 use function file_exists;
@@ -22,8 +20,6 @@ use function json_decode;
  */
 class JWTIssuerTest extends SandboxTestCase
 {
-    use Reflector;
-
     /** @var JWTIssuer $jwtIssuer */
     private $jwtIssuer;
 
@@ -63,28 +59,6 @@ class JWTIssuerTest extends SandboxTestCase
         $this->assertEquals(3, count(explode('.', $token)));
     }
 
-    /**
-     * @throws ReflectionException
-     *
-     * @covers ::getPayload
-     */
-    public function testGetPayload(): void
-    {
-        $payload = json_decode($this->reflectInvoke(
-            $this->jwtIssuer,
-            'getPayload',
-            [
-                $this->getUser(),
-                ['cus1' => 'abc'],
-            ]
-        ));
-
-        $this->assertEquals('abc', $payload->cus1);
-    }
-
-    /**
-     * @covers ::issueJWS
-     */
     public function testIssueJWS(): JWS
     {
         $jwt     = $this->jwtIssuer->issueJWS($this->getUser(), ['cus1' => 'abc']);
@@ -100,7 +74,6 @@ class JWTIssuerTest extends SandboxTestCase
      * @param JWS $jwt The previously issued JWS.
      *
      * @depends  testIssueJWS
-     * @covers ::serializeJWS
      */
     public function testSerializeJWS(JWS $jwt): void
     {
@@ -108,9 +81,6 @@ class JWTIssuerTest extends SandboxTestCase
         $this->assertValidCompactToken($token);
     }
 
-    /**
-     * @covers ::issueJWSSerialized
-     */
     public function testIssueJWSSerialized(): void
     {
         $token = $this->jwtIssuer->issueJWSSerialized($this->getUser());

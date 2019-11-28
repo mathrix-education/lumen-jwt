@@ -15,8 +15,6 @@ use ReflectionException;
  */
 class JWTManagerTest extends SandboxTestCase
 {
-    use Reflector;
-
     /**
      * @return JWTManager
      */
@@ -25,30 +23,11 @@ class JWTManagerTest extends SandboxTestCase
         return $this->getMockForAbstractClass(JWTManager::class);
     }
 
-    /**
-     * @covers ::getJWKPath
-     */
     public function testGetJWKPath(): void
     {
         $this->assertIsString($this->getMock()->getJWKPath());
     }
 
-    /**
-     * @throws ReflectionException
-     *
-     * @covers ::getJWK
-     */
-    public function testGetJWK(): void
-    {
-        $mock = $this->getMock();
-        /** @var JWK $jwk */
-        $jwk = $this->reflectInvoke($mock, 'getJWK');
-        $this->assertNotEmpty($jwk->jsonSerialize()['d']); // Assert private key exists
-    }
-
-    /**
-     * @covers ::getJWKPublic
-     */
     public function testGetJWKPublic(): void
     {
         /** @var JWK $jwk */
