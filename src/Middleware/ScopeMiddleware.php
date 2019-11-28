@@ -26,7 +26,7 @@ class ScopeMiddleware
     public function handle(Request $request, Closure $next, string $scope)
     {
         if ($request->user() === null || !$request->user()->hasScope($scope)) {
-            throw new MissingScope($scope, $request->url());
+            throw new MissingScope($scope);
         }
 
         return $next($request);

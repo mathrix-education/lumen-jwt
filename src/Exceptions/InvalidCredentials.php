@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace Mathrix\Lumen\JWT\Auth\Exceptions;
 
-use Mathrix\Lumen\Zero\Exceptions\Http\Http401Unauthorized;
+use Throwable;
 
-class InvalidCredentials extends Http401Unauthorized
+class InvalidCredentials extends JWTException
 {
-    protected $message = 'The given credentials were invalid.';
+    public function __construct(?Throwable $previous = null, ?int $code = 0, array $headers = [])
+    {
+        parent::__construct('The given credentials were invalid', $previous, $code, $headers);
+    }
 }

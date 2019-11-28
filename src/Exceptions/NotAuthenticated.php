@@ -4,9 +4,14 @@ declare(strict_types=1);
 
 namespace Mathrix\Lumen\JWT\Auth\Exceptions;
 
-use Mathrix\Lumen\Zero\Exceptions\Http\Http401Unauthorized;
+use Throwable;
 
-class NotAuthenticated extends Http401Unauthorized
+class NotAuthenticated extends JWTException
 {
     protected $message = 'This route requires authentication.';
+
+    public function __construct(?Throwable $previous = null)
+    {
+        parent::__construct('This route requires authentication.', $previous);
+    }
 }
