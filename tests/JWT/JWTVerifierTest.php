@@ -8,6 +8,7 @@ use Mathrix\Lumen\JWT\Auth\HasJWT;
 use Mathrix\Lumen\JWT\Auth\JWT\JWTIssuer;
 use Mathrix\Lumen\JWT\Auth\JWT\JWTVerifier;
 use Mathrix\Lumen\JWT\Auth\Tests\SandboxTestCase;
+use Mockery;
 
 /**
  * @coversDefaultClass \Mathrix\Lumen\JWT\Auth\JWT\JWTVerifier
@@ -19,9 +20,9 @@ class JWTVerifierTest extends SandboxTestCase
      */
     public function testVerify()
     {
-        /** @var HasJWT $user */
-        $user     = $this->getMockForTrait(HasJWT::class);
-        $user->id = 1;
+        /** @var HasJWT|Mockery\MockInterface $user */
+        $user = Mockery::mock(HasJWT::class);
+        $user->shouldReceive('getKey')->withNoArgs()->andReturn(1);
         /** @var JWTIssuer $issuer */
         $issuer = $this->app->make(JWTIssuer::class);
         $token  = $issuer->issueJWSSerialized($user);

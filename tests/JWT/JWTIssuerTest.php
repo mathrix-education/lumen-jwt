@@ -10,6 +10,8 @@ use Mathrix\Lumen\JWT\Auth\Commands\JWTKeyCommand;
 use Mathrix\Lumen\JWT\Auth\HasJWT;
 use Mathrix\Lumen\JWT\Auth\JWT\JWTIssuer;
 use Mathrix\Lumen\JWT\Auth\Tests\SandboxTestCase;
+use Mockery;
+use Mockery\MockInterface;
 use function count;
 use function explode;
 use function file_exists;
@@ -43,9 +45,9 @@ class JWTIssuerTest extends SandboxTestCase
      */
     private function getUser()
     {
-        /** @var HasJWT $user */
-        $user     = $this->getMockForTrait(HasJWT::class);
-        $user->id = 1;
+        /** @var HasJWT|MockInterface $user */
+        $user = Mockery::mock(HasJWT::class);
+        $user->shouldReceive('getKey')->withNoArgs()->andReturn(1);
 
         return $user;
     }
