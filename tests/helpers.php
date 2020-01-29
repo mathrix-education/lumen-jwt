@@ -9,6 +9,8 @@ if (!function_exists('mkdirp')) {
             return;
         }
 
-        mkdir($path, 0755, true);
+        if (!mkdir($path, 0755, true) && !is_dir($path)) {
+            throw new RuntimeException("Directory \"$path\" was not created");
+        }
     }
 }
