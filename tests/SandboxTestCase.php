@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Mathrix\Lumen\JWT\Auth\Tests;
+namespace Mathrix\Lumen\JWT\Tests;
 
 use Laravel\Lumen\Testing\TestCase;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
@@ -20,6 +20,6 @@ class SandboxTestCase extends TestCase
      */
     public function createApplication()
     {
-        return require __DIR__ . '/bootstrap.php';
+        return require __DIR__ . '/../sandbox/bootstrap/bootstrap.php';
     }
 }

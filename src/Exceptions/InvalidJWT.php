@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Mathrix\Lumen\JWT\Auth\Exceptions;
+namespace Mathrix\Lumen\JWT\Exceptions;
 
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Throwable;
 
-class InvalidJWT extends JWTException
+class InvalidJWT extends UnauthorizedHttpException
 {
-    protected $message = 'The given JWT is invalid';
-
-    public function __construct(?Throwable $previous = null, ?int $code = 0, array $headers = [])
+    public function __construct(?string $message = null, ?Throwable $previous = null)
     {
-        parent::__construct('The given JWT is invalid', $previous, $code, $headers);
+        $message ??= 'Invalid JWT';
+        parent::__construct('Bearer', $message, $previous, 0, []);
     }
 }

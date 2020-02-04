@@ -2,13 +2,14 @@
 
 declare(strict_types=1);
 
-use Mathrix\Lumen\JWT\Auth\JWTAuthServiceProvider;
+require_once __DIR__ . '/../../vendor/autoload.php';
+
+use Mathrix\Lumen\JWT\JWTServiceProvider;
 
 // Setup directories
-$base = __DIR__ . '/../sandbox';
+$base = dirname(__DIR__);
 mkdirp($base);
 $base = realpath($base);
-mkdirp("$base/database");
 mkdirp("$base/storage");
 mkdirp("$base/storage/keychain");
 mkdirp("$base/storage/logs");
@@ -17,6 +18,10 @@ $app = new Laravel\Lumen\Application($base);
 
 $app->withFacades();
 $app->withEloquent();
+
+$app->configure('app');
+$app->configure('database');
+$app->configure('jwt');
 
 $app->singleton(
     Illuminate\Contracts\Console\Kernel::class,
@@ -28,6 +33,6 @@ $app->singleton(
     Laravel\Lumen\Exceptions\Handler::class
 );
 
-$app->register(JWTAuthServiceProvider::class);
+$app->register(JWTServiceProvider::class);
 
 return $app;

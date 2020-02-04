@@ -1,5 +1,3 @@
-composer.lock
-
 # User-specific stuff:
 /.idea/*.iml
 /.idea/**/workspace.xml
@@ -10,8 +8,5 @@ composer.lock
 /.idea/deployment.xml
 /.idea/php.xml
 
-/artifacts
-/node_modules/
-/sandbox
 /vendor
-
+composer.lock

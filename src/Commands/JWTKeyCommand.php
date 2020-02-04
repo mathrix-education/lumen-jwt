@@ -2,56 +2,83 @@
 
 declare(strict_types=1);
 
-namespace Mathrix\Lumen\JWT\Auth\Commands;
+namespace Mathrix\Lumen\JWT\Commands;
 
 use Illuminate\Console\Command;
-use Jose\Component\KeyManagement\JWKFactory;
-use Mathrix\Lumen\JWT\Auth\JWT;
-use const JSON_PRETTY_PRINT;
-use function chmod;
-use function config;
+use Jose\Component\Signature\Algorithm\EdDSA;
+use Jose\Component\Signature\Algorithm\ES256;
+use Jose\Component\Signature\Algorithm\ES384;
+use Jose\Component\Signature\Algorithm\ES512;
+use Jose\Component\Signature\Algorithm\HS256;
+use Jose\Component\Signature\Algorithm\HS384;
+use Jose\Component\Signature\Algorithm\HS512;
+use Jose\Component\Signature\Algorithm\PS256;
+use Jose\Component\Signature\Algorithm\PS384;
+use Jose\Component\Signature\Algorithm\PS512;
+use Jose\Component\Signature\Algorithm\RS256;
+use Jose\Component\Signature\Algorithm\RS384;
+use Jose\Component\Signature\Algorithm\RS512;
+use Mathrix\Lumen\JWT\Config\JWTConfig;
+use Mathrix\Lumen\JWT\Drivers\DriverFactory;
+use Mathrix\Lumen\JWT\Drivers\ECDSADriver;
+use Mathrix\Lumen\JWT\Drivers\EdDSADriver;
 use function file_exists;
-use function file_put_contents;
-use function json_encode;
 use function storage_path;
 
 /**
- * Generate a new JWT key. By default, it will use the config/jwt_auth.php configuration file.
+ * Generate a new JWT key. By default, it will use the config/jwt.php configuration file.
  */
 class JWTKeyCommand extends Command
 {
     protected $signature = 'jwt:key '
-    . '{--f|force : For the key creation, even if a key already exist} '
-    . '{--type=ecdsa : The key type, can only be "rsa" or "ecdsa"} '
-    . '{--size=4096 : RSA only: the RSA key size} '
-    . '{--curve=P-521 : ECDSA only: the elliptic curve used to generate the key} '
-    . '{--path= : The key path, relative to storage directory} ';
+    . '{--f|force : Force the key creation, even if a key already exist} '
+    . '{--a|algorithm= : The algorithm} '
+    . '{--c|curve= : EdDSA/ES* only: the elliptic curve used to generate the key} '
+    . '{--s|size= : HS*/RS*/PS* only: the key size in bits} '
+    . '{--p|path= : The key path, relative to storage directory} ';
 
-    public function handle()
+    public function handle(): int
     {
-        $force = $this->option('force') !== false;
-        $type  = $this->option('type') ?? config('jwt_auth.key.type') ?? JWT::ECDSA_TYPE;
-        $path  = $this->option('path') ?? config('jwt_auth.key.path') ?? storage_path('jwt_key.json');
+        $force  = $this->option('force') !== false;
+        $config = JWTConfig::key();
 
-        switch ($type) {
-            case JWT::ECDSA_TYPE:
-                $curve = $this->option('curve') ?? config('jwt_auth.key.ecdsa.curve') ?? JWT::CURVE_P521;
-                $key   = JWKFactory::createECKey($curve);
+        $config['algorithm'] = $this->option('algorithm') ?? $config['algorithm'] ?? HS256::class;
+        $config['path']      = $this->option('path') ?? $config['path'] ?? storage_path('jwt_key.json');
+
+        switch ($config['algorithm']) {
+            case ES256::class:
+            case ES384::class:
+            case ES512::class:
+                $config['curve'] ??= $this->option('curve') ?? ECDSADriver::CURVE_P521;
                 break;
-            case JWT::RSA_TYPE:
-            default:
-                $size = (int)$this->option('size') ?? (int)config('jwt_auth.key.rsa.size') ?? 4096;
-                $key  = JWKFactory::createRSAKey($size);
+            case EdDSA::class:
+                $config['curve'] ??= $this->option('curve') ?? EdDSADriver::CURVE_ED25519;
+                break;
+            case HS256::class:
+            case HS384::class:
+            case HS512::class:
+                $config['size'] ??= (int)($this->option('size') ?? '512');
+                break;
+            case RS256::class:
+            case RS384::class:
+            case RS512::class:
+            case PS256::class:
+            case PS384::class:
+            case PS512::class:
+                $config['size'] ??= (int)($this->option('size') ?? '4096');
                 break;
         }
 
         // Write the key
-        if (file_exists($path) && !$force) {
-            $this->line("A key already exists at $path, ignoring");
-        } else {
-            file_put_contents($path, json_encode($key->jsonSerialize(), JSON_PRETTY_PRINT));
-            chmod($path, 0600); // Secure the key
-            $this->line("Generated a new key in {$path}");
+        if (!$force && file_exists($config['path'])) {
+            $this->error("A key already exists at {$config['path']}, ignoring");
+
+            return 1;
         }
+
+        DriverFactory::from($config);
+        $this->line("Generated a new key in {$config['path']}");
+
+        return 0;
     }
 }
