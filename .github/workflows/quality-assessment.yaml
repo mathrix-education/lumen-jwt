@@ -46,6 +46,7 @@ jobs:
         run: |
           mkdir -p storage/artifacts/
           vendor/bin/phpunit \
+            --testdox \
             --log-junit=storage/artifacts/phpunit-junit.xml \
             --coverage-clover=storage/artifacts/phpunit-coverage.xml \
             --coverage-text
