@@ -70,7 +70,8 @@ abstract class Driver
         $this->validator = new JWTConfigValidator();
         $this->path      = $config['path'];
 
-        $this->algorithm = $this->validator->algorithm($config['algorithm'], self::ALGORITHMS);
+        $class           = static::class;
+        $this->algorithm = $this->validator->algorithm($config['algorithm'], $class::ALGORITHMS);
         /** @var Algorithm $algorithm */
         $algorithm = new $this->algorithm();
 
