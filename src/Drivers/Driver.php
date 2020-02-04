@@ -22,8 +22,6 @@ use Jose\Component\Signature\JWSVerifier;
 use Jose\Component\Signature\Serializer\CompactSerializer;
 use Mathrix\Lumen\JWT\Config\JWTConfig;
 use Mathrix\Lumen\JWT\Config\JWTConfigValidator;
-use const JSON_PRETTY_PRINT;
-use const JSON_THROW_ON_ERROR;
 use function chmod;
 use function class_basename;
 use function file_exists;
@@ -32,6 +30,8 @@ use function file_put_contents;
 use function is_array;
 use function json_decode;
 use function json_encode;
+use const JSON_PRETTY_PRINT;
+use const JSON_THROW_ON_ERROR;
 
 /**
  * Base class for the JWT providers.
@@ -104,6 +104,14 @@ abstract class Driver
     }
 
     /**
+     * @return string
+     */
+    public function getAlgorithm(): string
+    {
+        return $this->algorithm;
+    }
+
+    /**
      * Generate a JWK using the configuration parameters.
      *
      * @return JWK
@@ -131,7 +139,7 @@ abstract class Driver
         file_put_contents($this->path, $keyString);
         chmod($this->path, self::KEY_PERMS);
     }
-
+    
     /**
      * Get the public JWK.
      *

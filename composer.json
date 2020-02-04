@@ -58,6 +58,7 @@
   },
   "autoload-dev": {
     "psr-4": {
+      "Sandbox\\": "sandbox/app/",
       "Mathrix\\Lumen\\JWT\\Tests\\": "tests/"
     },
     "files": [

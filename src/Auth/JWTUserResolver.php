@@ -34,14 +34,16 @@ class JWTUserResolver
             return null;
         }
 
+        $payload = $driver->unserialize($bearerToken)->getPayload();
+        $data    = json_decode($payload, true, 512, JSON_THROW_ON_ERROR);
         /** @var string $sub Get the "sub" claim. */
-        $sub = data_get('sub', $driver->unserialize($bearerToken)->getPayload());
+        $sub = data_get($data, 'sub');
 
         if ($sub === null) {
             return null;
         }
 
-        $model = config('jwt.user_model');
+        $model = config('jwt.auth.user_model');
 
         /** @var Authenticatable $instance Only used to retrieve the auth identifier name. */
         $instance = new $model();

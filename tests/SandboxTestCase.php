@@ -20,6 +20,6 @@ class SandboxTestCase extends TestCase
      */
     public function createApplication()
     {
-        return require __DIR__ . '/bootstrap.php';
+        return require __DIR__ . '/../sandbox/bootstrap/bootstrap.php';
     }
 }

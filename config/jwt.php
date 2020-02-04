@@ -5,7 +5,7 @@ declare(strict_types=1);
 return [
     'auth'     => [
         'driver_name' => 'jwt',
-        'user_model'  => '\\App\\Model\\User',
+        'user_model'  => '\\App\\User',
     ],
     'key'      => env('JWT_KEY', 'default'),
     'keys'     => [
