@@ -6,15 +6,11 @@ namespace Mathrix\Lumen\JWT\Tests;
 
 use Illuminate\Support\Facades\Artisan;
 use Mathrix\Lumen\JWT\Commands\JWTKeyCommand;
-use Mathrix\Lumen\JWT\Drivers\ECDSADriver;
-use Mathrix\Lumen\JWT\Drivers\EdDSADriver;
-use Mathrix\Lumen\JWT\Drivers\HMACDriver;
-use Mathrix\Lumen\JWT\Drivers\RSADriver;
+use Mathrix\Lumen\JWT\Config\JWTConfig;
+use Mathrix\Lumen\JWT\Drivers\Driver;
 use stdClass;
 use function file_get_contents;
 use function json_decode;
-use function storage_path;
-use function strtolower;
 
 /**
  * @testdox Artisan Command `jwt:key`
@@ -35,140 +31,72 @@ class JWTKeyCommandTest extends SandboxTestCase
     }
 
     /**
-     * Generate the data for the data providers.
-     *
-     * @param array $dataset The dataset.
+     * Generate the arguments for the `jwt:key` command.
      *
      * @return array
      */
-    private function generateProvider(array $dataset): array
+    public function handleProvider(): array
     {
-        return collect($dataset)
-            ->mapWithKeys(fn($key) => [(string)$key => [$key]])
-            ->toArray();
+        return array_merge(
+            TestsUtils::ecdsa(),
+            TestsUtils::eddsa(),
+            TestsUtils::hmac(),
+            TestsUtils::rsa()
+        );
     }
 
     /**
-     * @return array The data provider for the ECDSA.
-     */
-    public function handleECDSADataProvider(): array
-    {
-        return $this->generateProvider(ECDSADriver::CURVES);
-    }
-
-    /**
-     * @return array The data provider for the EdDSA.
-     */
-    public function handleEdDSADataProvider(): array
-    {
-        return $this->generateProvider(EdDSADriver::CURVES);
-    }
-
-    /**
-     * @return array The data provider for the HMAC.
-     */
-    public function handleHMACDataProvider(): array
-    {
-        return $this->generateProvider([512, 1024]);
-    }
-
-    /**
-     * @return array The data provider for the RSA.
-     */
-    public function handleRSADataProvider(): array
-    {
-        return $this->generateProvider([1024, 2048, 3072, 4096]);
-    }
-
-    /**
-     * @testdox      generates a key using ECDSA $curve curve.
-     *
-     * @param string $curve The Elliptic Curve
+     * @testdox      generates a $kty key using $algorithm ($curveOrSize)
      *
      * @covers ::handle
-     * @dataProvider handleECDSADataProvider
+     * @dataProvider handleProvider
+     *
+     * @param string $kty
+     * @param string $algorithm
+     * @param string $curveOrSize
+     * @param string $path
      */
-    public function testHandleECDSA(string $curve): void
+    public function testHandle(string $kty, string $algorithm, string $curveOrSize, string $path): void
     {
-        $expectedKeyPath = storage_path('keychain/ec-' . strtolower($curve) . '.json');
+        TestsUtils::deleteKeyIfExists($path);
+        $args = [
+            '--force'     => '',
+            '--algorithm' => $algorithm,
+            '--path'      => $path,
+        ];
 
-        Artisan::call(JWTKeyCommand::class, [
-            '--force' => '',
-            '--type'  => ECDSADriver::NAME,
-            '--path'  => $expectedKeyPath,
-            '--curve' => $curve,
-        ]);
+        if (is_string($curveOrSize)) {
+            $args['--curve'] = $curveOrSize;
+        } elseif (is_int($curveOrSize)) {
+            $args['--size'] = $curveOrSize;
+        } else {
+            $this->fail('Invalid curveOrSize parameter, got ' . $curveOrSize . ', expected string or integer');
+        }
 
-        $this->assertFileExists($expectedKeyPath);
-        $this->assertEquals('EC', $this->decodeKey($expectedKeyPath)->kty);
+        Artisan::call(JWTKeyCommand::class, $args);
+
+        $this->assertFileExists($path);
+        $actualPermissions = octdec(substr(sprintf('%o', fileperms($path)), -4));
+        $this->assertEquals(Driver::KEY_PERMS, $actualPermissions);
+        $this->assertEquals($kty, $this->decodeKey($path)->kty);
+        TestsUtils::deleteKeyIfExists($path);
     }
 
     /**
-     * @testdox      generates a key using EdDSA $curve curve.
-     *
-     * @param string $curve The Edwards Curve name.
-     * @covers ::handle
-     *
-     * @dataProvider handleEdDSADataProvider
+     * @testdox do not override existing key without the --force flag
      */
-    public function testHandleEdDSA(string $curve): void
+    public function testSafeOverride(): void
     {
-        $expectedKeyPath = storage_path('keychain/ed-' . strtolower($curve) . '.json');
+        $path = JWTConfig::key('path');
+        TestsUtils::deleteKeyIfExists($path);
 
-        Artisan::call(JWTKeyCommand::class, [
-            '--force' => '',
-            '--type'  => EdDSADriver::NAME,
-            '--path'  => $expectedKeyPath,
-            '--curve' => $curve,
-        ]);
+        $this->artisan('jwt:key'); // Generate a key at $path
+        $this->assertFileExists($path);
 
-        $this->assertFileExists($expectedKeyPath);
-        $this->assertEquals('OKP', $this->decodeKey($expectedKeyPath)->kty);
-    }
-
-    /**
-     * @testdox      generates an HMAC key of $size bits.
-     *
-     * @param int $size The HMAC key size in bits.
-     *
-     * @dataProvider handleHMACDataProvider
-     * @covers ::handle
-     */
-    public function testHandleHMAC(int $size): void
-    {
-        $expectedKeyPath = storage_path("keychain/hmac-$size.json");
-
-        Artisan::call(JWTKeyCommand::class, [
-            '--force' => '',
-            '--type'  => HMACDriver::NAME,
-            '--path'  => $expectedKeyPath,
-            '--size'  => $size,
-        ]);
-
-        $this->assertFileExists($expectedKeyPath);
-        $this->assertEquals('oct', $this->decodeKey($expectedKeyPath)->kty);
-    }
-
-    /**
-     * @testdox      generates a RSA key of $size bits.
-     *
-     * @param int $size The RSA key size in bits.
-     *
-     * @dataProvider handleRSADataProvider
-     * @covers ::handle
-     */
-    public function testHandleRSA(int $size): void
-    {
-        $expectedKeyPath = storage_path("keychain/rsa-$size.json");
-
-        Artisan::call(JWTKeyCommand::class, [
-            '--force' => '',
-            '--type'  => RSADriver::NAME,
-            '--path'  => $expectedKeyPath,
-            '--size'  => $size,
-        ]);
-
-        $this->assertFileExists($expectedKeyPath);
-        $this->assertEquals('RSA', $this->decodeKey($expectedKeyPath)->kty);
+        $md5  = md5(file_get_contents($path)); // Get the md5 of the generated key
+        $exit = $this->artisan('jwt:key');
+        $this->assertEquals(1, $exit);
+        $this->assertEquals($md5, md5(file_get_contents($path))); // Check if the key has changed
+        TestsUtils::deleteKeyIfExists($path);
     }
 }

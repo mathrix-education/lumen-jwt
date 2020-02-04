@@ -32,7 +32,12 @@ class JWTUserResolver
         }
 
         /** @var string $sub Get the "sub" claim. */
-        $sub   = data_get('sub', $driver->unserialize($bearerToken)->getPayload());
+        $sub = data_get('sub', $driver->unserialize($bearerToken)->getPayload());
+
+        if ($sub === null) {
+            return null;
+        }
+
         $model = config('jwt.user_model');
 
         /** @var Authenticatable $instance Only used to retrieve the auth identifier name. */

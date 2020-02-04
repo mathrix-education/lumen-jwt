@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Mathrix\Lumen\JWT\Config;
 
+use Mathrix\Lumen\JWT\Drivers\DriverFactory;
 use Mathrix\Lumen\JWT\Exceptions\InvalidConfiguration;
 
 /**
@@ -11,22 +12,18 @@ use Mathrix\Lumen\JWT\Exceptions\InvalidConfiguration;
  */
 class JWTConfigValidator
 {
-    private const ALGORITHM_NAMESPACE = 'Jose\\Component\\Signature\\Algorithm';
-
     public function algorithm(string $algorithm, array $allowed): string
     {
-        if (!class_exists($algorithm)) {
-            $algorithm = self::ALGORITHM_NAMESPACE . "\\$algorithm";
-        }
+        $algorithm = DriverFactory::resolveAlgorithm($algorithm);
 
-        if (!class_exists($algorithm) || !in_array($algorithm, $allowed, true)) {
-            throw InvalidConfiguration::algorithm($algorithm);
+        if (!in_array($algorithm, $allowed, true)) {
+            throw InvalidConfiguration::invalidAlgorithm($algorithm, $allowed);
         }
 
         return $algorithm;
     }
 
-    public function isKeyReadable(string $keyPath): bool
+    public function assertKeyReadable(string $keyPath): bool
     {
         if (file_exists($keyPath)) {
             if (is_readable($keyPath)) {
@@ -36,10 +33,10 @@ class JWTConfigValidator
             throw InvalidConfiguration::keyReadable($keyPath);
         }
 
-        return $this->isKeyReadable(dirname($keyPath));
+        return $this->assertKeyReadable(dirname($keyPath));
     }
 
-    public function isKeyWritable(string $keyPath): bool
+    public function assertKeyWritable(string $keyPath): bool
     {
         if (file_exists($keyPath)) {
             if (is_writable($keyPath)) {
@@ -49,6 +46,6 @@ class JWTConfigValidator
             throw InvalidConfiguration::keyWritable($keyPath);
         }
 
-        return $this->isKeyWritable(dirname($keyPath));
+        return $this->assertKeyWritable(dirname($keyPath));
     }
 }

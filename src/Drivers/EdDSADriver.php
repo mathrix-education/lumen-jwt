@@ -14,9 +14,8 @@ use Jose\Component\Signature\Algorithm\EdDSA;
 class EdDSADriver extends Driver
 {
     public const NAME          = 'eddsa';
-    public const CURVE_X25519  = 'X25519';
     public const CURVE_ED25519 = 'Ed25519';
-    public const CURVES        = [self::CURVE_X25519, self::CURVE_ED25519];
+    public const CURVES        = [self::CURVE_ED25519];
     public const ALGORITHMS    = [EdDSA::class];
 
     /** @var string The elliptic curve to use. */

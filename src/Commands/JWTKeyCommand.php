@@ -20,6 +20,7 @@ use Jose\Component\Signature\Algorithm\RS384;
 use Jose\Component\Signature\Algorithm\RS512;
 use Mathrix\Lumen\JWT\Config\JWTConfig;
 use Mathrix\Lumen\JWT\Drivers\Driver;
+use Mathrix\Lumen\JWT\Drivers\DriverFactory;
 use Mathrix\Lumen\JWT\Drivers\ECDSADriver;
 use Mathrix\Lumen\JWT\Drivers\EdDSADriver;
 use function file_exists;
@@ -37,13 +38,13 @@ class JWTKeyCommand extends Command
     . '{--s|size= : HS*/RS*/PS* only: the key size in bits} '
     . '{--p|path= : The key path, relative to storage directory} ';
 
-    public function handle(): void
+    public function handle(): int
     {
         $force = $this->option('force') !== false;
+        $config = JWTConfig::key();
 
-        $config              = JWTConfig::key();
-        $config['algorithm'] ??= $this->option('algorithm') ?? 'HS256';
-        $config['path']      ??= $this->option('path') ?? storage_path('jwt_key.json');
+        $config['algorithm'] = $this->option('algorithm') ?? $config['algorithm'] ?? HS256::class;
+        $config['path']      = $this->option('path') ?? $config['path'] ?? storage_path('jwt_key.json');
 
         switch ($config['algorithm']) {
             case ES256::class:
@@ -57,7 +58,7 @@ class JWTKeyCommand extends Command
             case HS256::class:
             case HS384::class:
             case HS512::class:
-                $config['size'] ??= (int)($this->option('size') ?? '64');
+                $config['size'] ??= (int)($this->option('size') ?? '512');
                 break;
             case RS256::class:
             case RS384::class:
@@ -73,10 +74,12 @@ class JWTKeyCommand extends Command
         if (!$force && file_exists($config['path'])) {
             $this->error("A key already exists at {$config['path']}, ignoring");
 
-            return;
+            return 1;
         }
 
-        Driver::from($config);
+        DriverFactory::from($config);
         $this->line("Generated a new key in {$config['path']}");
+
+        return 0;
     }
 }

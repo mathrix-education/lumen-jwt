@@ -29,10 +29,13 @@ use Mathrix\Lumen\JWT\Config\JWTConfigValidator;
 abstract class Driver
 {
     public const  ALGORITHMS = [];
-    private const KEY_PERMS  = 0600;
+    public const  KEY_PERMS  = 0600;
 
     /** @var string The key location on the disk */
     protected string $path;
+    /** @var JWTConfigValidator */
+    protected JWTConfigValidator $validator;
+
     /** @var JWK $jwk The JSON Web Key */
     protected JWK $jwk;
     /** @var string The algorithm class */
@@ -56,10 +59,10 @@ abstract class Driver
      */
     public function __construct(array $config)
     {
-        $validator  = new JWTConfigValidator();
-        $this->path = $config['path'];
+        $this->validator = new JWTConfigValidator();
+        $this->path      = $config['path'];
 
-        $this->algorithm = $validator->algorithm($config['algorithm'], static::ALGORITHMS);
+        $this->algorithm = $this->validator->algorithm($config['algorithm'], static::ALGORITHMS);
         /** @var Algorithm $algorithm */
         $algorithm = new $this->algorithm();
 
@@ -70,10 +73,10 @@ abstract class Driver
 
         // Load the JWK or write it if necessary
         if (file_exists($this->path)) {
-            $validator->isKeyWritable($this->path);
+            $this->validator->assertKeyReadable($this->path);
             $this->load();
         } else {
-            $validator->isKeyWritable($this->path);
+            $this->validator->assertKeyWritable($this->path);
             $this->write();
         }
 
@@ -89,26 +92,6 @@ abstract class Driver
             new NotBeforeChecker(),
             new IssuedAtChecker(),
         ]);
-    }
-
-    /**
-     * Instantiate a driver from a configuration.
-     *
-     * @param array $config The driver configuration.
-     *
-     * @return ECDSADriver|EdDSADriver|HMACDriver|RSADriver
-     */
-    public static function from(array $config)
-    {
-        $algorithm = $config['algorithm'];
-        $drivers   = [ECDSADriver::class, EdDSADriver::class, HMACDriver::class, RSADriver::class];
-
-        /** @var ECDSADriver|EdDSADriver|HMACDriver|RSADriver $driver */
-        foreach ($drivers as $driver) {
-            if (in_array($algorithm, $driver::ALGORITHMS, true)) {
-                return new $driver($config);
-            }
-        }
     }
 
     /**
@@ -153,12 +136,16 @@ abstract class Driver
     /**
      * Sign a payload.
      *
-     * @param string $payload
+     * @param array|string $payload
      *
      * @return JWS
      */
-    final public function sign(string $payload): JWS
+    final public function sign($payload): JWS
     {
+        if (is_array($payload)) {
+            $payload = json_encode($payload, JSON_THROW_ON_ERROR, 512);
+        }
+
         return $this->builder->create()
             ->withPayload($payload)
             ->addSignature($this->jwk, [
@@ -171,11 +158,11 @@ abstract class Driver
     /**
      * Sign and serialize a payload.
      *
-     * @param string $payload
+     * @param array|string $payload
      *
      * @return string
      */
-    final public function signAndSerialize(string $payload): string
+    final public function signAndSerialize($payload): string
     {
         return $this->serializer->serialize($this->sign($payload));
     }
@@ -187,7 +174,7 @@ abstract class Driver
      *
      * @return JWS
      */
-    final public function unserialize(string $jws): JWS
+    final public function unserialize($jws): JWS
     {
         if ($jws instanceof JWS) {
             return $jws;
