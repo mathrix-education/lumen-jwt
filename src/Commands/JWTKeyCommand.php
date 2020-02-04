@@ -19,7 +19,6 @@ use Jose\Component\Signature\Algorithm\RS256;
 use Jose\Component\Signature\Algorithm\RS384;
 use Jose\Component\Signature\Algorithm\RS512;
 use Mathrix\Lumen\JWT\Config\JWTConfig;
-use Mathrix\Lumen\JWT\Drivers\Driver;
 use Mathrix\Lumen\JWT\Drivers\DriverFactory;
 use Mathrix\Lumen\JWT\Drivers\ECDSADriver;
 use Mathrix\Lumen\JWT\Drivers\EdDSADriver;
@@ -40,7 +39,7 @@ class JWTKeyCommand extends Command
 
     public function handle(): int
     {
-        $force = $this->option('force') !== false;
+        $force  = $this->option('force') !== false;
         $config = JWTConfig::key();
 
         $config['algorithm'] = $this->option('algorithm') ?? $config['algorithm'] ?? HS256::class;

@@ -22,6 +22,16 @@ use Jose\Component\Signature\JWSVerifier;
 use Jose\Component\Signature\Serializer\CompactSerializer;
 use Mathrix\Lumen\JWT\Config\JWTConfig;
 use Mathrix\Lumen\JWT\Config\JWTConfigValidator;
+use const JSON_PRETTY_PRINT;
+use const JSON_THROW_ON_ERROR;
+use function chmod;
+use function class_basename;
+use function file_exists;
+use function file_get_contents;
+use function file_put_contents;
+use function is_array;
+use function json_decode;
+use function json_encode;
 
 /**
  * Base class for the JWT providers.
@@ -53,8 +63,6 @@ abstract class Driver
     private ClaimCheckerManager  $claimChecker;
 
     /**
-     * Driver constructor.
-     *
      * @param array $config The driver configuration.
      */
     public function __construct(array $config)
@@ -62,7 +70,7 @@ abstract class Driver
         $this->validator = new JWTConfigValidator();
         $this->path      = $config['path'];
 
-        $this->algorithm = $this->validator->algorithm($config['algorithm'], static::ALGORITHMS);
+        $this->algorithm = $this->validator->algorithm($config['algorithm'], self::ALGORITHMS);
         /** @var Algorithm $algorithm */
         $algorithm = new $this->algorithm();
 

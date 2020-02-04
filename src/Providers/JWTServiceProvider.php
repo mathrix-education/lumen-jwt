@@ -13,6 +13,7 @@ use Mathrix\Lumen\JWT\Commands\JWTKeyCommand;
 use Mathrix\Lumen\JWT\Config\JWTConfig;
 use Mathrix\Lumen\JWT\Drivers\Driver;
 use Mathrix\Lumen\JWT\Drivers\DriverFactory;
+use function app;
 use function config;
 
 /**

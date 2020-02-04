@@ -8,9 +8,6 @@ use Closure;
 use Illuminate\Http\Request;
 use Mathrix\Lumen\JWT\Drivers\Driver;
 
-/**
- *
- */
 class JWTCheckMiddleware
 {
     public const NAME = 'jwt.check';

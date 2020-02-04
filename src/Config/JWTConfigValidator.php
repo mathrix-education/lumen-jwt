@@ -6,10 +6,12 @@ namespace Mathrix\Lumen\JWT\Config;
 
 use Mathrix\Lumen\JWT\Drivers\DriverFactory;
 use Mathrix\Lumen\JWT\Exceptions\InvalidConfiguration;
+use function dirname;
+use function file_exists;
+use function in_array;
+use function is_readable;
+use function is_writable;
 
-/**
- *
- */
 class JWTConfigValidator
 {
     public function algorithm(string $algorithm, array $allowed): string

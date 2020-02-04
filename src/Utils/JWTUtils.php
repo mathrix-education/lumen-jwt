@@ -6,6 +6,8 @@ namespace Mathrix\Lumen\JWT\Utils;
 
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
+use function app;
+use function config;
 
 /**
  * Collection of utilities.

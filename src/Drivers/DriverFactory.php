@@ -18,10 +18,9 @@ use Jose\Component\Signature\Algorithm\RS256;
 use Jose\Component\Signature\Algorithm\RS384;
 use Jose\Component\Signature\Algorithm\RS512;
 use Mathrix\Lumen\JWT\Exceptions\InvalidConfiguration;
+use function class_exists;
+use function in_array;
 
-/**
- *
- */
 class DriverFactory
 {
     public const ALGORITHM_NAMESPACE = 'Jose\\Component\\Signature\\Algorithm';

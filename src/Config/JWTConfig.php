@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Mathrix\Lumen\JWT\Config;
 
-/**
- *
- */
+use function config;
+
 class JWTConfig
 {
     public static function key($path = null, $default = null)
