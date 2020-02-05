@@ -11,7 +11,7 @@
     "authentication"
   ],
   "homepage": "https://github.com/mathrix-education/lumen-jwt-auth",
-  "license": "proprietary",
+  "license": "MIT",
   "authors": [
     {
       "name": "Mathieu Bour",
