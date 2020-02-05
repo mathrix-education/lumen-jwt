@@ -1,7 +1,7 @@
 {
   "name": "mathrix-education/lumen-jwt",
   "description": "A small library to handle authentication using JWT.",
-  "version": "3.0.0-alpha.3",
+  "version": "3.0.0-alpha.4",
   "type": "library",
   "keywords": [
     "mathrix",
