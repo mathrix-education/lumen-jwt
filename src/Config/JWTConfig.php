@@ -18,7 +18,7 @@ class JWTConfig
 
     public static function payload($path = null, $default = null)
     {
-        $name = config('jwt.key');
+        $name = config('jwt.payload');
         $path = "jwt.payloads.$name" . ($path !== null ? ".$path" : '');
 
         return config($path, $default);
