@@ -76,6 +76,11 @@ class JWTKeyCommand extends Command
             return 1;
         }
 
+        // When forcing creation of the key, remove it if it exists
+        if ($force && file_exists($config['path'])) {
+            unlink($config['path']);
+        }
+
         DriverFactory::from($config);
         $this->line("Generated a new key in {$config['path']}");
 
