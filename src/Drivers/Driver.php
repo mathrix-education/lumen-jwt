@@ -25,8 +25,6 @@ use Mathrix\Lumen\JWT\Exceptions\InvalidAlgorithm;
 use Mathrix\Lumen\JWT\Exceptions\InvalidConfiguration;
 use Mathrix\Lumen\JWT\Exceptions\IO;
 use Mathrix\Lumen\JWT\Exceptions\MissingLibrary;
-use const JSON_PRETTY_PRINT;
-use const JSON_THROW_ON_ERROR;
 use function array_merge;
 use function chmod;
 use function class_basename;
@@ -41,6 +39,8 @@ use function is_readable;
 use function is_string;
 use function is_writable;
 use function json_encode;
+use const JSON_PRETTY_PRINT;
+use const JSON_THROW_ON_ERROR;
 
 /**
  * Base class for the JWT providers.
@@ -379,7 +379,7 @@ abstract class Driver
     final public function sign($payload, bool $serialize = true)
     {
         if ($payload instanceof Authenticatable) {
-            $payload = ['sub' => $payload->getAuthIdentifier()];
+            $payload = ['sub' => (string)$payload->getAuthIdentifier()];
         }
 
         $payload       = array_merge($payload, $this->claimsGenerator->generate());

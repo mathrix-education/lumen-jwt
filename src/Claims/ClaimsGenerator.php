@@ -37,7 +37,7 @@ class ClaimsGenerator
 
         if (isset($this->config['exp'])) {
             try {
-                $claims['exp'] = new DateTime($this->config['exp']);
+                $claims['exp'] = (new DateTime($this->config['exp']))->getTimestamp();
             } catch (Exception $e) {
                 throw InvalidConfiguration::claim('exp', $e);
             }
@@ -45,17 +45,17 @@ class ClaimsGenerator
 
         if (isset($this->config['nbf'])) {
             try {
-                $claims['nbf'] = new DateTime($this->config['nbf']);
+                $claims['nbf'] = (new DateTime($this->config['nbf']))->getTimestamp();
             } catch (Exception $e) {
-                throw InvalidConfiguration::claim('exp', $e);
+                throw InvalidConfiguration::claim('nbf', $e);
             }
         }
 
         if (isset($this->config['iat'])) {
             try {
-                $claims['iat'] = new DateTime($this->config['iat']);
+                $claims['iat'] = (new DateTime($this->config['iat']))->getTimestamp();
             } catch (Exception $e) {
-                throw InvalidConfiguration::claim('exp', $e);
+                throw InvalidConfiguration::claim('iat', $e);
             }
         }
 
