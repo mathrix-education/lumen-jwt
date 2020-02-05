@@ -32,6 +32,6 @@ class JWTServiceProvider extends ServiceProvider
 
         /** @var AuthManager $auth */
         $auth = app()->make('auth');
-        $auth->viaRequest(config('jwt.driver'), new JWTUserResolver());
+        $auth->viaRequest(config('jwt.auth.driver_name', 'jwt'), new JWTUserResolver());
     }
 }
