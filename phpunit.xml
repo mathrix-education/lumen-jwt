@@ -12,9 +12,6 @@
     </testsuites>
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
-            <exclude>
-                <directory>./src/Exceptions</directory>
-            </exclude>
             <directory suffix=".php">./src</directory>
         </whitelist>
     </filter>

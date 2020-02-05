@@ -1,7 +1,7 @@
 {
   "name": "mathrix-education/lumen-jwt",
   "description": "A small library to handle authentication using JWT.",
-  "version": "3.0.0-alpha.1",
+  "version": "3.0.0-alpha.2",
   "type": "library",
   "keywords": [
     "mathrix",
@@ -31,6 +31,7 @@
     "php": ">=7.4",
     "ext-json": "*",
     "laravel/lumen-framework": "^6.0",
+    "psr/log": "^1.1",
     "ramsey/uuid": "^3.8",
     "web-token/jwt-checker": "^2.1",
     "web-token/jwt-core": "^2.1",

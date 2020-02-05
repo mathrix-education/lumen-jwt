@@ -7,13 +7,15 @@ namespace Mathrix\Lumen\JWT\Drivers;
 use Jose\Component\Core\JWK;
 use Jose\Component\KeyManagement\JWKFactory;
 use Jose\Component\Signature\Algorithm\EdDSA;
+use function implode;
 
 /**
  * Driver for Edwards elliptic curves.
  */
 class EdDSADriver extends Driver
 {
-    public const NAME          = 'eddsa';
+    public const NAME          = 'EdDSA';
+    public const LIBRARY       = 'web-token/jwt-signature-algorithm-eddsa';
     public const CURVE_ED25519 = 'Ed25519';
     public const CURVES        = [self::CURVE_ED25519];
     public const ALGORITHMS    = [EdDSA::class];
@@ -21,10 +23,22 @@ class EdDSADriver extends Driver
     /** @var string The elliptic curve to use. */
     private string $curve;
 
-    public function __construct(array $config)
+    /**
+     * @inheritDoc
+     */
+    protected function getSupportedAlgorithms(array $keyConfig): array
     {
-        $this->curve = $config['curve'] ?? self::CURVE_ED25519;
-        parent::__construct($config);
+        return self::ALGORITHMS;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function getValidationRules(array $keyConfig): array
+    {
+        return [
+            'curve' => 'required|in:' . implode(',', self::CURVES),
+        ];
     }
 
     /**
@@ -33,5 +47,13 @@ class EdDSADriver extends Driver
     protected function generate(): JWK
     {
         return JWKFactory::createOKPKey($this->curve);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function postApply(array $keyConfig): void
+    {
+        $this->curve = $keyConfig['curve'];
     }
 }

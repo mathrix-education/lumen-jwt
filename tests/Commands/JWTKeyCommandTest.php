@@ -6,8 +6,8 @@ namespace Mathrix\Lumen\JWT\Tests;
 
 use Illuminate\Support\Facades\Artisan;
 use Mathrix\Lumen\JWT\Commands\JWTKeyCommand;
-use Mathrix\Lumen\JWT\Config\JWTConfig;
 use Mathrix\Lumen\JWT\Drivers\Driver;
+use Mathrix\Lumen\JWT\Utils\JWTConfig;
 use stdClass;
 use function file_get_contents;
 use function json_decode;
@@ -64,11 +64,10 @@ class JWTKeyCommandTest extends SandboxTestCase
             '--algorithm' => $algorithm,
             '--path'      => $path,
         ];
-
-        if (is_string($curveOrSize)) {
-            $args['--curve'] = $curveOrSize;
-        } elseif (is_int($curveOrSize)) {
+        if (is_numeric($curveOrSize)) {
             $args['--size'] = $curveOrSize;
+        } elseif (is_string($curveOrSize)) {
+            $args['--curve'] = $curveOrSize;
         } else {
             $this->fail('Invalid curveOrSize parameter, got ' . $curveOrSize . ', expected string or integer');
         }
@@ -87,7 +86,7 @@ class JWTKeyCommandTest extends SandboxTestCase
      */
     public function testSafeOverride(): void
     {
-        $path = JWTConfig::key('path');
+        $path = JWTConfig::key(null, 'path');
         TestsUtils::deleteKeyIfExists($path);
 
         $this->artisan('jwt:key'); // Generate a key at $path

@@ -8,7 +8,6 @@ use Mathrix\Lumen\JWT\Config\JWTConfig;
 use Mathrix\Lumen\JWT\Drivers\Driver;
 use Mathrix\Lumen\JWT\Drivers\HMACDriver;
 use Mathrix\Lumen\JWT\Tests\SandboxTestCase;
-use Mathrix\Lumen\JWT\Tests\TestsUtils;
 
 /**
  * @testdox JWT Service Provider
@@ -21,8 +20,15 @@ class JWTServiceProviderTest extends SandboxTestCase
      */
     public function testSingleton(): void
     {
+        config([
+            'jwt.key'            => 'singleton',
+            'jwt.keys.singleton' => [
+                'algorithm' => 'HS512',
+                'size'      => 512,
+            ],
+        ]);
+
         $driver = $this->app->make(Driver::class);
         $this->assertInstanceOf(HMACDriver::class, $driver);
-        TestsUtils::deleteKeyIfExists(JWTConfig::key('path'));
     }
 }

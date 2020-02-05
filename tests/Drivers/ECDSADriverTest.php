@@ -43,6 +43,10 @@ class ECDSADriverTest extends SandboxTestCase
      * @param string $algorithm
      * @param string $curve
      * @param string $path
+     *
+     * @throws \Jose\Component\Checker\InvalidClaimException
+     * @throws \Jose\Component\Checker\MissingMandatoryClaimException
+     * @throws \JsonException
      */
     public function testSignCheckVerify(string $algorithm, string $curve, string $path): void
     {
@@ -53,7 +57,7 @@ class ECDSADriverTest extends SandboxTestCase
             'hello' => 'world',
         ];
 
-        $jwt = $this->instance->signAndSerialize($payload);
+        $jwt = $this->instance->sign($payload);
         $jws = $this->instance->unserialize($jwt);
         $this->assertTrue($this->instance->check($jws));
         $this->assertTrue($this->instance->verify($jws));
