@@ -51,7 +51,7 @@ class JWTUserResolverTest extends SandboxTestCase
 
         /** @var Driver $driver */
         $driver = app()->make(Driver::class);
-        $bearer = $driver->signAndSerialize(['sub' => $sub]);
+        $bearer = $driver->sign(['sub' => $sub]);
 
         $this->setupBuilderMock($sub, $res);
         $request = $this->getRequest($bearer);
@@ -71,7 +71,7 @@ class JWTUserResolverTest extends SandboxTestCase
 
         /** @var Driver $driver */
         $driver = app()->make(Driver::class);
-        $bearer = $driver->signAndSerialize(['not-sub' => $sub]);
+        $bearer = $driver->sign(['not-sub' => $sub]);
 
         $request = $this->getRequest($bearer);
 
@@ -92,7 +92,7 @@ class JWTUserResolverTest extends SandboxTestCase
         $driver = app()->make(Driver::class);
 
         // Generate a token with an invalid signature
-        $bearerOriginal = $driver->signAndSerialize(['sub' => $sub]);
+        $bearerOriginal = $driver->sign(['sub' => $sub]);
         $bearer         = explode('.', $bearerOriginal);
         $bearer[2]      = base64_encode(random_bytes(strlen(base64_decode($bearer[2]))));
         $bearer         = implode('.', $bearer);

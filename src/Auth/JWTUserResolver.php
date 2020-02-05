@@ -9,9 +9,11 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Mathrix\Lumen\JWT\Drivers\Driver;
+use const JSON_THROW_ON_ERROR;
 use function app;
 use function config;
 use function data_get;
+use function json_decode;
 
 /**
  * Retrieve the user based on the 'sub' in a JWT token.

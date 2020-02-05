@@ -53,7 +53,7 @@ class EdDSADriverTest extends SandboxTestCase
             'hello' => 'world',
         ];
 
-        $jwt = $this->instance->signAndSerialize($payload);
+        $jwt = $this->instance->sign($payload);
         $jws = $this->instance->unserialize($jwt);
         $this->assertTrue($this->instance->check($jws));
         $this->assertTrue($this->instance->verify($jws));

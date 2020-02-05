@@ -102,14 +102,14 @@ class TestsUtils
         $dataset = [];
 
         $rsaSizes = ['2048', '3072', '4096'];
-        foreach (RSADriver::ALGORITHMS as $algorithm) {
-            foreach ($rsaSizes as $size) {
-                $dataset['RSA|' . class_basename($algorithm) . "|$size"] = [
-                    'kty'       => 'RSA',
-                    'algorithm' => $algorithm,
-                    'size'      => $size,
-                ];
-            }
+        foreach (RSADriver::ALGORITHMS as $sizeIndex => $algorithm) {
+            $size = $rsaSizes[$sizeIndex % count($rsaSizes)];
+
+            $dataset['RSA|' . class_basename($algorithm) . "|$size"] = [
+                'kty'       => 'RSA',
+                'algorithm' => $algorithm,
+                'size'      => $size,
+            ];
         }
 
         return self::withPath($dataset);

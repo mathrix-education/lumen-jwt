@@ -19,10 +19,14 @@ use Jose\Component\Signature\Algorithm\RS256;
 use Jose\Component\Signature\Algorithm\RS384;
 use Jose\Component\Signature\Algorithm\RS512;
 use Mathrix\Lumen\JWT\Drivers\Driver;
-use Mathrix\Lumen\JWT\Drivers\DriverFactory;
 use Mathrix\Lumen\JWT\Drivers\ECDSADriver;
 use Mathrix\Lumen\JWT\Drivers\EdDSADriver;
-use Mathrix\Lumen\JWT\Exceptions\InvalidConfiguration;
+use Mathrix\Lumen\JWT\Drivers\HMACDriver;
+use Mathrix\Lumen\JWT\Drivers\RSADriver;
+use function class_exists;
+use function is_numeric;
+use function microtime;
+use function round;
 
 /**
  * Benchmark the signature and verification algorithms.
@@ -32,45 +36,69 @@ class JWTBenchmarkCommand extends Command
     protected $signature   = 'jwt:benchmark {--iterations=100 : Number of iterations to run}';
     protected $description = 'Benchmark the signature and verification algorithms';
 
-    private string $keyPath;
+    private const CONFIGS = [
+        ECDSADriver::class => [
+            [ES256::class, ECDSADriver::CURVE_P256],
+            [ES384::class, ECDSADriver::CURVE_P384],
+            [ES512::class, ECDSADriver::CURVE_P521],
+        ],
+        EdDSADriver::class => [
+            [EdDSA::class, EdDSADriver::CURVE_ED25519],
+        ],
+        HMACDriver::class  => [
+            [HS256::class, '256'],
+            [HS384::class, '384'],
+            [HS512::class, '512'],
+        ],
+        RSADriver::class   => [
+            [RS256::class, '2048'],
+            [RS384::class, '3072'],
+            [RS512::class, '4096'],
+            [PS256::class, '2048'],
+            [PS384::class, '3072'],
+            [PS512::class, '4096'],
+        ],
+    ];
+
     private array  $results = [];
 
     public function handle(): void
     {
-        $this->keyPath = storage_path('keychain/bench.json');
-        $iterations    = (int)$this->option('iterations');
+        $iterations = (int)$this->option('iterations');
 
-        $this->benchmark($this->getDriver(ES256::class, ECDSADriver::CURVE_P256), $iterations);
-        $this->benchmark($this->getDriver(ES384::class, ECDSADriver::CURVE_P384), $iterations);
-        $this->benchmark($this->getDriver(ES512::class, ECDSADriver::CURVE_P521), $iterations);
-        $this->benchmark($this->getDriver(EdDSA::class, EdDSADriver::CURVE_ED25519), $iterations);
-        $this->benchmark($this->getDriver(HS256::class, '256'), $iterations);
-        $this->benchmark($this->getDriver(HS384::class, '384'), $iterations);
-        $this->benchmark($this->getDriver(HS512::class, '512'), $iterations);
-        $this->benchmark($this->getDriver(RS256::class, '2048'), $iterations);
-        $this->benchmark($this->getDriver(RS384::class, '3072'), $iterations);
-        $this->benchmark($this->getDriver(RS512::class, '4096'), $iterations);
-        $this->benchmark($this->getDriver(PS256::class, '2048'), $iterations);
-        $this->benchmark($this->getDriver(PS384::class, '3072'), $iterations);
-        $this->benchmark($this->getDriver(PS512::class, '4096'), $iterations);
+        $this->info("Benchmarking JWT signatures and verifications using <info>$iterations</info> iterations");
+
+        foreach (self::CONFIGS as $driverClass => $configs) {
+            $name    = $driverClass::NAME;
+            $library = $driverClass::LIBRARY;
+
+            if (!class_exists($driverClass::ALGORITHMS[0])) {
+                $this->line("> Skipping <info>$name</info> because it requires $library");
+                continue;
+            }
+
+            $this->line("> Benchmarking <info>$name</info>");
+
+            foreach ($configs as [$algorithm, $curveOrSize]) {
+                $driver = $this->getDriver($algorithm, $curveOrSize);
+
+                if ($driver === null) {
+                    continue;
+                }
+
+                $this->line("  + Using algorithm <info>{$driver->getAlgorithmName()}</info> ({$curveOrSize})");
+                $this->benchmark($this->getDriver($algorithm, $curveOrSize), $curveOrSize, $iterations);
+            }
+        }
 
         $this->table([
             'Algorithm',
+            'Curve / Size',
             'Signature (µs)',
             'Signatures / sec',
             'Verification (µs)',
             'Verifications / sec',
-        ], $this->results);
-    }
-
-    /**
-     * Remove the benchmark key.
-     */
-    private function removeKey(): void
-    {
-        if (file_exists($this->keyPath)) {
-            unlink($this->keyPath);
-        }
+        ], $this->results, 'box-double');
     }
 
     /**
@@ -83,39 +111,28 @@ class JWTBenchmarkCommand extends Command
      */
     private function getDriver(string $algorithm, string $curveOrSize): ?Driver
     {
-        try {
-            $algorithm = DriverFactory::resolveAlgorithm($algorithm);
-        } catch (InvalidConfiguration $e) {
-            $this->line('Skipping ' . class_basename($algorithm));
-
-            return null;
-        }
-
-        $this->line('Benchmarking ' . class_basename($algorithm));
-
-        $config = [
-            'algorithm' => $algorithm,
-            'path'      => $this->keyPath,
-        ];
-
         if (is_numeric($curveOrSize)) {
-            $config['size'] = (int)$curveOrSize;
-        } else {
-            $config['curve'] = $curveOrSize;
+            // Bit-sized drivers
+            return Driver::from([
+                'algorithm' => $algorithm,
+                'size'      => (int)$curveOrSize,
+            ]);
         }
 
-        $this->removeKey();
-
-        return DriverFactory::from($config);
+        return Driver::from([
+            'algorithm' => $algorithm,
+            'curve'     => $curveOrSize,
+        ]);
     }
 
     /**
      * Run a signature and verification benchmark for a given driver.
      *
-     * @param Driver $driver     The driver to use for signature and verification.
-     * @param int    $iterations The number of iterations.
+     * @param Driver $driver      The driver to use for signature and verification.
+     * @param string $curveOrSize The curve (for ECDSA and EdDSA) or the key size in bits (HMAC and RSA).
+     * @param int    $iterations  The number of iterations.
      */
-    private function benchmark(?Driver $driver, int $iterations): void
+    private function benchmark(?Driver $driver, string $curveOrSize, int $iterations): void
     {
         if ($driver === null) {
             // Do not run benchmark if driver is null.
@@ -134,7 +151,7 @@ class JWTBenchmarkCommand extends Command
         $start = microtime(true);
 
         for ($i = 0; $i < $iterations; $i++) {
-            $tokens[] = $driver->signAndSerialize($payloads[$i]);
+            $tokens[] = $driver->sign($payloads[$i]);
         }
 
         $inter = microtime(true); // Signature benchmark end / Verification benchmark start
@@ -146,13 +163,12 @@ class JWTBenchmarkCommand extends Command
         $end = microtime(true); // Verification benchmark end
 
         $this->results[] = [
-            'algorithm'  => class_basename($driver->getAlgorithm()),
-            'sign_time'  => round((($inter - $start) / $iterations) * 1000 * 1000, 1), // µs
-            'sign_freq'  => round($iterations / ($inter - $start), 1),
-            'verif_time' => round((($end - $inter) / $iterations) * 1000 * 1000, 1), // µs
-            'verif_freq' => round($iterations / ($end - $inter), 1),
+            'algorithm'   => $driver->getAlgorithmName(),
+            'curveOrSize' => $curveOrSize,
+            'sign_time'   => round((($inter - $start) / $iterations) * 1000 * 1000, 1), // µs
+            'sign_freq'   => round($iterations / ($inter - $start), 1),
+            'verif_time'  => round((($end - $inter) / $iterations) * 1000 * 1000, 1), // µs
+            'verif_freq'  => round($iterations / ($end - $inter), 1),
         ];
-
-        $this->removeKey();
     }
 }

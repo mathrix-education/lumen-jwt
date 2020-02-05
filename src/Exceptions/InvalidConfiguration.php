@@ -4,61 +4,29 @@ declare(strict_types=1);
 
 namespace Mathrix\Lumen\JWT\Exceptions;
 
+use Illuminate\Contracts\Validation\Validator;
 use InvalidArgumentException;
-use function config;
+use Throwable;
 use function implode;
 
 class InvalidConfiguration extends InvalidArgumentException
 {
-    private static function makeMessage(string $message, ?string $config = null): string
+    public static function validation(Validator $validator, ?Throwable $previous = null): InvalidConfiguration
     {
-        $config ??= config('jwt.key');
+        $messages = implode("\n", $validator->getMessageBag()->all());
+        $message  = "Configuration validation failed\n$messages";
 
-        return "Invalid key configuration `{$config}`: {$message}";
+        return new self($message, 0, $previous);
     }
 
-    public static function missingKeys(array $missing, ?string $config = null): InvalidConfiguration
+    public static function claim(string $claim, ?Throwable $previous = null): InvalidConfiguration
     {
-        $message = self::makeMessage('missing ' . implode(', ', $missing), $config);
+        $message = "Invalid claim {$claim} configuration";
 
-        return new self($message);
-    }
-
-    public static function missingLib(string $algorithm, string $library, ?string $config = null): InvalidConfiguration
-    {
-        $message = self::makeMessage("you need to install {$library} in order to use {$algorithm}", $config);
-
-        return new self($message);
-    }
-
-    public static function invalidAlgorithm(
-        string $algorithm,
-        array $allowed = [],
-        ?string $config = null
-    ): InvalidConfiguration {
-        if (empty($allowed)) {
-            $message = self::makeMessage("unknown algorithm $algorithm", $config);
-        } else {
-            $message = self::makeMessage(
-                "found $algorithm which is not in " . implode(', ', $allowed),
-                $config
-            );
+        if ($previous !== null) {
+            $message .= ": {$previous->getMessage()}";
         }
 
-        return new self($message);
-    }
-
-    public static function keyReadable(string $path, ?string $config = null): InvalidConfiguration
-    {
-        $message = self::makeMessage("cannot read the key at path $path", $config);
-
-        return new self($message);
-    }
-
-    public static function keyWritable(string $path, ?string $config = null): InvalidConfiguration
-    {
-        $message = self::makeMessage("cannot write the key at path $path", $config);
-
-        return new self($message);
+        return new self($message, 0, $previous);
     }
 }

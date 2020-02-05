@@ -10,9 +10,8 @@ use Laravel\Lumen\Application;
 use Mathrix\Lumen\JWT\Auth\JWTUserResolver;
 use Mathrix\Lumen\JWT\Commands\JWTBenchmarkCommand;
 use Mathrix\Lumen\JWT\Commands\JWTKeyCommand;
-use Mathrix\Lumen\JWT\Config\JWTConfig;
 use Mathrix\Lumen\JWT\Drivers\Driver;
-use Mathrix\Lumen\JWT\Drivers\DriverFactory;
+use Mathrix\Lumen\JWT\Utils\JWTConfig;
 use function app;
 use function config;
 
@@ -28,7 +27,7 @@ class JWTServiceProvider extends ServiceProvider
         $this->commands([JWTKeyCommand::class, JWTBenchmarkCommand::class]);
 
         $this->app->singleton(Driver::class, static function () {
-            return DriverFactory::from(JWTConfig::key());
+            return Driver::from(JWTConfig::key(), JWTConfig::payload());
         });
 
         /** @var AuthManager $auth */

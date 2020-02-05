@@ -18,12 +18,11 @@ use Jose\Component\Signature\Algorithm\PS512;
 use Jose\Component\Signature\Algorithm\RS256;
 use Jose\Component\Signature\Algorithm\RS384;
 use Jose\Component\Signature\Algorithm\RS512;
-use Mathrix\Lumen\JWT\Config\JWTConfig;
-use Mathrix\Lumen\JWT\Drivers\DriverFactory;
-use Mathrix\Lumen\JWT\Drivers\ECDSADriver;
-use Mathrix\Lumen\JWT\Drivers\EdDSADriver;
+use Mathrix\Lumen\JWT\Drivers\Driver;
+use Mathrix\Lumen\JWT\Utils\JWTConfig;
 use function file_exists;
 use function storage_path;
+use function unlink;
 
 /**
  * Generate a new JWT key. By default, it will use the config/jwt.php configuration file.
@@ -42,30 +41,26 @@ class JWTKeyCommand extends Command
         $force  = $this->option('force') !== false;
         $config = JWTConfig::key();
 
-        $config['algorithm'] = $this->option('algorithm') ?? $config['algorithm'] ?? HS256::class;
+        $config['algorithm'] = $this->option('algorithm') ?? $config['algorithm'];
         $config['path']      = $this->option('path') ?? $config['path'] ?? storage_path('jwt_key.json');
 
         switch ($config['algorithm']) {
             case ES256::class:
             case ES384::class:
-            case ES512::class:
-                $config['curve'] ??= $this->option('curve') ?? ECDSADriver::CURVE_P521;
-                break;
             case EdDSA::class:
-                $config['curve'] ??= $this->option('curve') ?? EdDSADriver::CURVE_ED25519;
+            case ES512::class:
+                $config['curve'] = $this->option('curve') ?? $config['curve'];
                 break;
             case HS256::class:
             case HS384::class:
             case HS512::class:
-                $config['size'] ??= (int)($this->option('size') ?? '512');
-                break;
-            case RS256::class:
-            case RS384::class:
-            case RS512::class:
-            case PS256::class:
-            case PS384::class:
             case PS512::class:
-                $config['size'] ??= (int)($this->option('size') ?? '4096');
+            case PS384::class:
+            case PS256::class:
+            case RS512::class:
+            case RS384::class:
+            case RS256::class:
+                $config['size'] = (int)($this->option('size') ?? $config['size']);
                 break;
         }
 
@@ -81,7 +76,8 @@ class JWTKeyCommand extends Command
             unlink($config['path']);
         }
 
-        DriverFactory::from($config);
+        $driver = Driver::from($config, []);
+        $driver->getPublicJWK();
         $this->line("Generated a new key in {$config['path']}");
 
         return 0;
