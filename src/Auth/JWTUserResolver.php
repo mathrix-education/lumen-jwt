@@ -29,6 +29,11 @@ class JWTUserResolver
     {
         $bearerToken = $request->bearerToken();
 
+        if ($bearerToken === null) {
+            // No token => no user authentication
+            return null;
+        }
+
         /** @var Driver $driver */
         $driver = app()->make(Driver::class);
 
