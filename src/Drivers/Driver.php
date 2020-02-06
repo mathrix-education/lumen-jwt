@@ -284,7 +284,7 @@ abstract class Driver
             throw new IO("Key exists at $path but is readable");
         }
 
-        if (file_exists($dir) && !is_writable($dir)) {
+        if (!file_exists($path) && file_exists($dir) && !is_writable($dir)) {
             throw new IO("Directory $dir exists but is not writable and thus the key cannot be created at $path");
         }
 
