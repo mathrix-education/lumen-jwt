@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace Mathrix\Lumen\JWT\Tests\Drivers;
 
+use Jose\Component\Checker\InvalidClaimException;
+use Jose\Component\Checker\MissingMandatoryClaimException;
+use JsonException;
 use Mathrix\Lumen\JWT\Drivers\ECDSADriver;
+use Mathrix\Lumen\JWT\Tests\DriverProvider;
 use Mathrix\Lumen\JWT\Tests\SandboxTestCase;
-use Mathrix\Lumen\JWT\Tests\TestsUtils;
+use function collect;
 
 /**
  * @testdox ECDSA Driver
@@ -14,53 +18,48 @@ use Mathrix\Lumen\JWT\Tests\TestsUtils;
  */
 class ECDSADriverTest extends SandboxTestCase
 {
-    private ECDSADriver $instance;
-
     public function configProvider(): array
     {
-        return collect(TestsUtils::ecdsa())
+        return collect(DriverProvider::ecdsa())
             ->map(static function (array $config) {
-                unset($config['kty']);
+                unset($config['kty'], $config['path']);
 
                 return $config;
             })
             ->toArray();
     }
 
-    public function init(string $algorithm, string $curve, string $path): void
-    {
-        $this->instance = new ECDSADriver([
-            'algorithm' => $algorithm,
-            'curve'     => $curve,
-            'path'      => $path,
-        ]);
-    }
-
     /**
-     * @testdox      signs using $algorithm with the curve $curve
-     * @dataProvider configProvider
-     *
      * @param string $algorithm
      * @param string $curve
-     * @param string $path
      *
-     * @throws \Jose\Component\Checker\InvalidClaimException
-     * @throws \Jose\Component\Checker\MissingMandatoryClaimException
-     * @throws \JsonException
+     * @throws InvalidClaimException
+     * @throws MissingMandatoryClaimException
+     * @throws JsonException
+     *
+     * @testdox      signs using $algorithm with the curve $curve
+     * @dataProvider configProvider
+     * @covers ::getSupportedAlgorithms
+     * @covers ::getValidationRules
+     * @covers ::generate
+     * @covers ::postApply
+     * @covers ::sign
+     * @covers ::unserialize
+     * @covers ::check
+     * @covers ::verify
      */
-    public function testSignCheckVerify(string $algorithm, string $curve, string $path): void
+    public function testSignCheckVerify(string $algorithm, string $curve): void
     {
-        TestsUtils::deleteKeyIfExists($path);
-        $this->init($algorithm, $curve, $path);
+        $driver = new ECDSADriver([
+            'algorithm' => $algorithm,
+            'curve'     => $curve,
+        ]);
 
-        $payload = [
-            'hello' => 'world',
-        ];
+        $jws   = $driver->sign(['hello' => 'world'], false);
+        $token = $driver->serialize($jws);
+        $jws   = $driver->unserialize($token);
 
-        $jwt = $this->instance->sign($payload);
-        $jws = $this->instance->unserialize($jwt);
-        $this->assertTrue($this->instance->check($jws));
-        $this->assertTrue($this->instance->verify($jws));
-        TestsUtils::deleteKeyIfExists($path);
+        $this->assertTrue($driver->check($jws));
+        $this->assertTrue($driver->verify($jws));
     }
 }

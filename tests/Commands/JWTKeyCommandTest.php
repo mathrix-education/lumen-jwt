@@ -9,8 +9,17 @@ use Mathrix\Lumen\JWT\Commands\JWTKeyCommand;
 use Mathrix\Lumen\JWT\Drivers\Driver;
 use Mathrix\Lumen\JWT\Utils\JWTConfig;
 use stdClass;
+use function array_merge;
 use function file_get_contents;
+use function fileperms;
+use function is_numeric;
+use function is_string;
 use function json_decode;
+use function md5;
+use function octdec;
+use function sprintf;
+use function substr;
+use const JSON_THROW_ON_ERROR;
 
 /**
  * @testdox Artisan Command `jwt:key`
@@ -38,27 +47,25 @@ class JWTKeyCommandTest extends SandboxTestCase
     public function handleProvider(): array
     {
         return array_merge(
-            TestsUtils::ecdsa(),
-            TestsUtils::eddsa(),
-            TestsUtils::hmac(),
-            TestsUtils::rsa()
+            DriverProvider::ecdsa(),
+            DriverProvider::eddsa(),
+            DriverProvider::hmac(),
+            DriverProvider::rsa()
         );
     }
 
     /**
-     * @testdox      generates a $kty key using $algorithm ($curveOrSize)
-     *
-     * @covers ::handle
-     * @dataProvider handleProvider
-     *
      * @param string $kty
      * @param string $algorithm
      * @param string $curveOrSize
      * @param string $path
+     *
+     * @testdox      generates a $kty key using $algorithm ($curveOrSize)
+     * @covers ::handle
+     * @dataProvider handleProvider
      */
     public function testHandle(string $kty, string $algorithm, string $curveOrSize, string $path): void
     {
-        TestsUtils::deleteKeyIfExists($path);
         $args = [
             '--force'     => '',
             '--algorithm' => $algorithm,
@@ -72,22 +79,24 @@ class JWTKeyCommandTest extends SandboxTestCase
             $this->fail('Invalid curveOrSize parameter, got ' . $curveOrSize . ', expected string or integer');
         }
 
+        DriverProvider::deleteKeyIfExists($path);
         Artisan::call(JWTKeyCommand::class, $args);
 
         $this->assertFileExists($path);
         $actualPermissions = octdec(substr(sprintf('%o', fileperms($path)), -4));
         $this->assertEquals(Driver::KEY_PERMS, $actualPermissions);
         $this->assertEquals($kty, $this->decodeKey($path)->kty);
-        TestsUtils::deleteKeyIfExists($path);
+        DriverProvider::deleteKeyIfExists($path);
     }
 
     /**
      * @testdox do not override existing key without the --force flag
+     * @covers ::handle
      */
     public function testSafeOverride(): void
     {
         $path = JWTConfig::key(null, 'path');
-        TestsUtils::deleteKeyIfExists($path);
+        DriverProvider::deleteKeyIfExists($path);
 
         $this->artisan('jwt:key'); // Generate a key at $path
         $this->assertFileExists($path);
@@ -96,6 +105,6 @@ class JWTKeyCommandTest extends SandboxTestCase
         $exit = $this->artisan('jwt:key');
         $this->assertEquals(1, $exit);
         $this->assertEquals($md5, md5(file_get_contents($path))); // Check if the key has changed
-        TestsUtils::deleteKeyIfExists($path);
+        DriverProvider::deleteKeyIfExists($path);
     }
 }

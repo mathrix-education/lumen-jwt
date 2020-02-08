@@ -27,7 +27,7 @@ use function json_decode;
  * @link https://tools.ietf.org/html/rfc7519#section-4.1
  * @see  ClaimCheckerManager
  */
-class ClaimChecker
+class ClaimsChecker
 {
     private array $config;
     private array $mandatoryClaims = [];
@@ -44,11 +44,11 @@ class ClaimChecker
      *
      * @param string $name The configuration name.
      *
-     * @return ClaimChecker
+     * @return ClaimsChecker
      *
      * @throws UnknownPayloadConfig
      */
-    public static function from(string $name): ClaimChecker
+    public static function from(string $name): ClaimsChecker
     {
         $config = config("jwt.payloads.$name");
 
@@ -83,7 +83,7 @@ class ClaimChecker
             throw new InvalidArgumentException($message);
         }
 
-        return $this->getClaimChecker()->check($payload, $this->mandatoryClaims);
+        return $this->makeClaimCheckerManager()->check($payload, $this->mandatoryClaims);
     }
 
     /**
@@ -91,7 +91,7 @@ class ClaimChecker
      *
      * @return ClaimCheckerManager
      */
-    public function getClaimChecker(): ClaimCheckerManager
+    private function makeClaimCheckerManager(): ClaimCheckerManager
     {
         if (isset($this->claimChecker)) {
             return $this->claimChecker;
@@ -105,22 +105,22 @@ class ClaimChecker
             $this->mandatoryClaims[] = 'iss';
         }
 
-        if (isset($this->config['iat'])) {
+        if (isset($this->config['aud'])) {
             // "aud" (Audience), see https://tools.ietf.org/html/rfc7519#section-4.1.3
             $checkers[]              = new AudienceChecker($this->config['aud']);
-            $this->mandatoryClaims[] = 'iat';
+            $this->mandatoryClaims[] = 'aud';
         }
 
-        if (isset($this->config['iat'])) {
+        if (isset($this->config['exp'])) {
             // "exp" (Expiration Time), see https://tools.ietf.org/html/rfc7519#section-4.1.4
             $checkers[]              = new ExpirationTimeChecker();
-            $this->mandatoryClaims[] = 'iat';
+            $this->mandatoryClaims[] = 'exp';
         }
 
-        if (isset($this->config['iat'])) {
+        if (isset($this->config['nbf'])) {
             // "nbf" (Not Before), see https://tools.ietf.org/html/rfc7519#section-4.1.5
             $checkers[]              = new NotBeforeChecker();
-            $this->mandatoryClaims[] = 'iat';
+            $this->mandatoryClaims[] = 'nbf';
         }
 
         if (isset($this->config['iat'])) {

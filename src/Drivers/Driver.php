@@ -19,7 +19,7 @@ use Jose\Component\Signature\JWSTokenSupport;
 use Jose\Component\Signature\JWSVerifier;
 use Jose\Component\Signature\Serializer\CompactSerializer;
 use JsonException;
-use Mathrix\Lumen\JWT\Claims\ClaimChecker;
+use Mathrix\Lumen\JWT\Claims\ClaimsChecker;
 use Mathrix\Lumen\JWT\Claims\ClaimsGenerator;
 use Mathrix\Lumen\JWT\Exceptions\InvalidAlgorithm;
 use Mathrix\Lumen\JWT\Exceptions\InvalidConfiguration;
@@ -68,8 +68,8 @@ abstract class Driver
 
     /** @var HeaderCheckerManager $headerChecker The header checker */
     private HeaderCheckerManager $headerChecker;
-    /** @var ClaimChecker $claimChecker The claim checker */
-    private ClaimChecker $claimChecker;
+    /** @var ClaimsChecker $claimChecker The claim checker */
+    private ClaimsChecker $claimChecker;
 
     /**
      * @param array $keyConfig
@@ -93,7 +93,7 @@ abstract class Driver
             new AlgorithmChecker([$algorithmInstance->name()]),
         ], [new JWSTokenSupport()]);
 
-        $this->claimChecker = new ClaimChecker($claimsConfig);
+        $this->claimChecker = new ClaimsChecker($claimsConfig);
     }
 
     /**
@@ -394,6 +394,20 @@ abstract class Driver
             ->build();
 
         return !$serialize ? $jws : $this->serializer->serialize($jws);
+    }
+
+    /**
+     * Serialize a JWS using the Compact Serialize.
+     *
+     * @see CompactSerializer
+     *
+     * @param JWS $jws the JSON Web Token to serialize.
+     *
+     * @return string
+     */
+    public function serialize(JWS $jws): string
+    {
+        return $this->serializer->serialize($jws);
     }
 
     /**

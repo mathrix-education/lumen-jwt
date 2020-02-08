@@ -12,6 +12,14 @@ use Mathrix\Lumen\JWT\Drivers\Driver;
 use Mathrix\Lumen\JWT\Tests\SandboxTestCase;
 use Mockery;
 use Sandbox\Models\User;
+use function app;
+use function base64_decode;
+use function base64_encode;
+use function explode;
+use function implode;
+use function random_bytes;
+use function random_int;
+use function strlen;
 
 /**
  * @testdox JWT User Resolver
@@ -39,9 +47,10 @@ class JWTUserResolverTest extends SandboxTestCase
     }
 
     /**
+     * @throws Exception
+     *
      * @testdox extracts token from "Authorization" header and queries database using Eloquent
      * @covers ::__invoke
-     * @throws Exception
      */
     public function testInvokeSuccess(): void
     {
@@ -60,9 +69,21 @@ class JWTUserResolverTest extends SandboxTestCase
     }
 
     /**
+     * @testdox do not identifies the user when there is no bearer token
+     * @covers ::__invoke
+     */
+    public function testInvokeNoBearerToken(): void
+    {
+        $request = Request::create('/test', 'GET');
+
+        $this->assertNull((new JWTUserResolver())($request));
+    }
+
+    /**
+     * @throws Exception
+     *
      * @testdox do not identifies the user when there is no sub claim
      * @covers ::__invoke
-     * @throws Exception
      */
     public function testInvokeNoSubClaim(): void
     {
@@ -79,9 +100,10 @@ class JWTUserResolverTest extends SandboxTestCase
     }
 
     /**
+     * @throws Exception
+     *
      * @testdox do not identifies the user when the signature is invalid
      * @covers ::__invoke
-     * @throws Exception
      */
     public function testInvokeInvalidSignature(): void
     {

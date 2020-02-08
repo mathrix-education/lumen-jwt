@@ -6,6 +6,9 @@ namespace Mathrix\Lumen\JWT\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Jose\Component\Checker\InvalidClaimException;
+use Jose\Component\Checker\MissingMandatoryClaimException;
+use JsonException;
 use Mathrix\Lumen\JWT\Drivers\Driver;
 
 class JWTCheckMiddleware
@@ -19,6 +22,16 @@ class JWTCheckMiddleware
         $this->driver = $driver;
     }
 
+    /**
+     * @param Request $request
+     * @param Closure $next
+     *
+     * @return mixed
+     *
+     * @throws InvalidClaimException
+     * @throws MissingMandatoryClaimException
+     * @throws JsonException
+     */
     public function handle(Request $request, Closure $next)
     {
         $bearerToken = $request->bearerToken();

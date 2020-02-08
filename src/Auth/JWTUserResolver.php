@@ -38,6 +38,7 @@ class JWTUserResolver
         $driver = app()->make(Driver::class);
 
         if (!$driver->verify($bearerToken)) {
+            // Verification failed => no user authentication
             return null;
         }
 
@@ -47,6 +48,7 @@ class JWTUserResolver
         $sub = data_get($data, 'sub');
 
         if ($sub === null) {
+            // no sub claim => no user authentication
             return null;
         }
 

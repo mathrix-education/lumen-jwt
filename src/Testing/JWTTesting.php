@@ -11,20 +11,21 @@ use function config;
 /**
  * Collection of utilities.
  */
-class JWTUtils
+class JWTTesting
 {
     /**
      * Overrides the current user resolver and globally set the user in the application.
      * Useful when testing the application.
      *
-     * @param Authenticatable $user The user to impersonate.
+     * @param Authenticatable $user  The user to impersonate.
+     * @param string|null     $guard The guard to use.
      */
-    public static function actingAs(Authenticatable $user): void
+    public static function actingAs(Authenticatable $user, ?string $guard = null): void
     {
         app()->make('auth')
-            ->guard(config('jwt.guard'))
-            ->setUser($user);
+            ->shouldUse($guard ?? config('jwt.auth.driver_name'));
         app()->make('auth')
-            ->shouldUse(config('jwt.guard'));
+            ->guard($guard ?? config('jwt.auth.driver_name'))
+            ->setUser($user);
     }
 }

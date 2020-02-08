@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace Mathrix\Lumen\JWT\Tests\Drivers;
 
+use Jose\Component\Checker\InvalidClaimException;
+use Jose\Component\Checker\MissingMandatoryClaimException;
+use JsonException;
 use Mathrix\Lumen\JWT\Drivers\EdDSADriver;
 use Mathrix\Lumen\JWT\Tests\SandboxTestCase;
-use Mathrix\Lumen\JWT\Tests\TestsUtils;
+use Mathrix\Lumen\JWT\Tests\DriverProvider;
+use function collect;
 
 /**
  * @testdox EdDSA Driver
@@ -18,7 +22,7 @@ class EdDSADriverTest extends SandboxTestCase
 
     public function configProvider(): array
     {
-        return collect(TestsUtils::eddsa())
+        return collect(DriverProvider::eddsa())
             ->map(static function (array $config) {
                 unset($config['kty']);
 
@@ -27,36 +31,38 @@ class EdDSADriverTest extends SandboxTestCase
             ->toArray();
     }
 
-    public function init(string $algorithm, string $curve, string $path): void
-    {
-        $this->instance = new EdDSADriver([
-            'algorithm' => $algorithm,
-            'curve'     => $curve,
-            'path'      => $path,
-        ]);
-    }
-
     /**
-     * @testdox      signs using $algorithm with the curve $curve
-     * @dataProvider configProvider
-     *
      * @param string $algorithm
      * @param string $curve
      * @param string $path
+     *
+     * @throws InvalidClaimException
+     * @throws MissingMandatoryClaimException
+     * @throws JsonException
+     *
+     * @testdox      signs using $algorithm with the curve $curve
+     * @dataProvider configProvider
+     * @covers ::getSupportedAlgorithms
+     * @covers ::getValidationRules
+     * @covers ::generate
+     * @covers ::postApply
+     * @covers ::sign
+     * @covers ::unserialize
+     * @covers ::check
+     * @covers ::verify
      */
     public function testSignCheckVerify(string $algorithm, string $curve, string $path): void
     {
-        TestsUtils::deleteKeyIfExists($path);
-        $this->init($algorithm, $curve, $path);
+        $driver = new EdDSADriver([
+            'algorithm' => $algorithm,
+            'curve'     => $curve,
+        ]);
 
-        $payload = [
-            'hello' => 'world',
-        ];
+        $jws   = $driver->sign(['hello' => 'world'], false);
+        $token = $driver->serialize($jws);
+        $jws   = $driver->unserialize($token);
 
-        $jwt = $this->instance->sign($payload);
-        $jws = $this->instance->unserialize($jwt);
-        $this->assertTrue($this->instance->check($jws));
-        $this->assertTrue($this->instance->verify($jws));
-        TestsUtils::deleteKeyIfExists($path);
+        $this->assertTrue($driver->check($jws));
+        $this->assertTrue($driver->verify($jws));
     }
 }

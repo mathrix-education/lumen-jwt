@@ -8,11 +8,7 @@ use Mathrix\Lumen\JWT\JWTServiceProvider;
 
 // Setup directories
 $base = dirname(__DIR__);
-mkdirp($base);
 $base = realpath($base);
-mkdirp("$base/storage");
-mkdirp("$base/storage/keychain");
-mkdirp("$base/storage/logs");
 
 $app = new Laravel\Lumen\Application($base);
 
