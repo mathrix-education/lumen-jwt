@@ -12,7 +12,6 @@ use Mathrix\Lumen\JWT\Commands\JWTBenchmarkCommand;
 use Mathrix\Lumen\JWT\Commands\JWTKeyCommand;
 use Mathrix\Lumen\JWT\Drivers\Driver;
 use Mathrix\Lumen\JWT\Utils\JWTConfig;
-use function app;
 
 /**
  * @property Application $app

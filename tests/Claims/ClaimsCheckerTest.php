@@ -7,7 +7,6 @@ namespace Mathrix\Lumen\JWT\Tests\Claims;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Jose\Component\Checker\InvalidClaimException;
 use Jose\Component\Checker\MissingMandatoryClaimException;
-use JsonException;
 use Mathrix\Lumen\JWT\Claims\ClaimsChecker;
 use Mathrix\Lumen\JWT\Drivers\Driver;
 use Mathrix\Lumen\JWT\Tests\SandboxTestCase;

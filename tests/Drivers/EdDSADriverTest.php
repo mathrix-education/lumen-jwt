@@ -8,8 +8,8 @@ use Jose\Component\Checker\InvalidClaimException;
 use Jose\Component\Checker\MissingMandatoryClaimException;
 use JsonException;
 use Mathrix\Lumen\JWT\Drivers\EdDSADriver;
-use Mathrix\Lumen\JWT\Tests\SandboxTestCase;
 use Mathrix\Lumen\JWT\Tests\DriverProvider;
+use Mathrix\Lumen\JWT\Tests\SandboxTestCase;
 use function collect;
 
 /**

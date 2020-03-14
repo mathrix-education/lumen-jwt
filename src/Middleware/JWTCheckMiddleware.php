@@ -8,7 +8,6 @@ use Closure;
 use Illuminate\Http\Request;
 use Jose\Component\Checker\InvalidClaimException;
 use Jose\Component\Checker\MissingMandatoryClaimException;
-use JsonException;
 use Mathrix\Lumen\JWT\Drivers\Driver;
 
 class JWTCheckMiddleware

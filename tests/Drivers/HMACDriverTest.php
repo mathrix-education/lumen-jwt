@@ -6,10 +6,9 @@ namespace Mathrix\Lumen\JWT\Tests\Drivers;
 
 use Jose\Component\Checker\InvalidClaimException;
 use Jose\Component\Checker\MissingMandatoryClaimException;
-use JsonException;
 use Mathrix\Lumen\JWT\Drivers\HMACDriver;
-use Mathrix\Lumen\JWT\Tests\SandboxTestCase;
 use Mathrix\Lumen\JWT\Tests\DriverProvider;
+use Mathrix\Lumen\JWT\Tests\SandboxTestCase;
 use function collect;
 
 /**

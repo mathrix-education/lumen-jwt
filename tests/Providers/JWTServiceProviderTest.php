@@ -7,7 +7,6 @@ namespace Mathrix\Lumen\JWT\Tests\Providers;
 use Mathrix\Lumen\JWT\Drivers\Driver;
 use Mathrix\Lumen\JWT\Drivers\HMACDriver;
 use Mathrix\Lumen\JWT\Tests\SandboxTestCase;
-use function config;
 
 /**
  * @testdox JWT Service Provider

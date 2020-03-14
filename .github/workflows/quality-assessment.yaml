@@ -10,10 +10,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Setup PHP
-        uses: shivammathur/setup-php@1.8.2
+        uses: shivammathur/setup-php@2.1.2
         with:
-          php-version: '7.4'
+          php-version: '7.2'
           coverage: none
+          tools: prestissimo
       - name: Install dependencies
         run: |
           composer install \
@@ -35,11 +36,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
       - name: Setup PHP
-        uses: shivammathur/setup-php@1.8.2
+        uses: shivammathur/setup-php@2.1.2
         with:
           php-version: ${{ matrix.php }}
-          extension-csv: mbstring, gmp
+          extensions: mbstring, gmp
           coverage: pcov
+          tools: prestissimo
       - name: Install dependencies
         run: |
           rm -rf vendor/ composer.lock
