@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace Mathrix\Lumen\JWT\Auth;
 
 use Illuminate\Auth\Authenticatable;
+use Illuminate\Container\Container;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Mathrix\Lumen\JWT\Drivers\Driver;
-use const JSON_THROW_ON_ERROR;
-use function app;
-use function config;
 use function data_get;
 use function json_decode;
 
@@ -24,6 +23,8 @@ class JWTUserResolver
      * @param Request $request The Illuminate HTTP request.
      *
      * @return Model|Authenticatable|null The identified user, if any.
+     *
+     * @throws BindingResolutionException
      */
     public function __invoke(Request $request)
     {
@@ -35,7 +36,7 @@ class JWTUserResolver
         }
 
         /** @var Driver $driver */
-        $driver = app()->make(Driver::class);
+        $driver = Container::getInstance()->make(Driver::class);
 
         if (!$driver->verify($bearerToken)) {
             // Verification failed => no user authentication
@@ -43,7 +44,7 @@ class JWTUserResolver
         }
 
         $payload = $driver->unserialize($bearerToken)->getPayload();
-        $data    = json_decode($payload, true, 512, JSON_THROW_ON_ERROR);
+        $data    = json_decode($payload, true, 512);
         /** @var string $sub Get the "sub" claim. */
         $sub = data_get($data, 'sub');
 
@@ -52,7 +53,7 @@ class JWTUserResolver
             return null;
         }
 
-        $model = config('jwt.auth.user_model');
+        $model = Container::getInstance()->make('config')->get('jwt.auth.user_model');
 
         /** @var Authenticatable $instance Only used to retrieve the auth identifier name. */
         $instance = new $model();

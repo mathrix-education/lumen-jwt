@@ -21,7 +21,7 @@ class HMACDriver extends Driver
     public const ALGORITHMS = [HS256::class, HS384::class, HS512::class];
 
     /** @var int The HMAC key size in bits. */
-    private int $size;
+    private $size;
 
     /**
      * @inheritDoc

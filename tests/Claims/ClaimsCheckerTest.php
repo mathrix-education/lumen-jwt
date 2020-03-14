@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Mathrix\Lumen\JWT\Tests\Claims;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Jose\Component\Checker\InvalidClaimException;
 use Jose\Component\Checker\MissingMandatoryClaimException;
-use JsonException;
 use Mathrix\Lumen\JWT\Claims\ClaimsChecker;
 use Mathrix\Lumen\JWT\Drivers\Driver;
 use Mathrix\Lumen\JWT\Tests\SandboxTestCase;
@@ -23,16 +23,18 @@ class ClaimsCheckerTest extends SandboxTestCase
     public function claims(): array
     {
         return collect(['iss', 'aud', 'exp', 'nbf', 'iat'])
-            ->mapWithKeys(fn($claim) => [$claim => [$claim]])
+            ->mapWithKeys(static function ($claim) {
+                return [$claim => [$claim]];
+            })
             ->toArray();
     }
 
     /**
      * @param string $claim
      *
+     * @throws BindingResolutionException
      * @throws InvalidClaimException
      * @throws MissingMandatoryClaimException
-     * @throws JsonException
      *
      * @testdox      checks JWS using claim $claim
      * @covers ::check

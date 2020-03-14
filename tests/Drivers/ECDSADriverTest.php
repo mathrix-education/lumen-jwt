@@ -6,7 +6,6 @@ namespace Mathrix\Lumen\JWT\Tests\Drivers;
 
 use Jose\Component\Checker\InvalidClaimException;
 use Jose\Component\Checker\MissingMandatoryClaimException;
-use JsonException;
 use Mathrix\Lumen\JWT\Drivers\ECDSADriver;
 use Mathrix\Lumen\JWT\Tests\DriverProvider;
 use Mathrix\Lumen\JWT\Tests\SandboxTestCase;
@@ -35,7 +34,6 @@ class ECDSADriverTest extends SandboxTestCase
      *
      * @throws InvalidClaimException
      * @throws MissingMandatoryClaimException
-     * @throws JsonException
      *
      * @testdox      signs using $algorithm with the curve $curve
      * @dataProvider configProvider

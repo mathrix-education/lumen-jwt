@@ -7,7 +7,6 @@ namespace Mathrix\Lumen\JWT\Tests\Providers;
 use Mathrix\Lumen\JWT\Drivers\Driver;
 use Mathrix\Lumen\JWT\Drivers\HMACDriver;
 use Mathrix\Lumen\JWT\Tests\SandboxTestCase;
-use function config;
 
 /**
  * @testdox JWT Service Provider
@@ -21,7 +20,7 @@ class JWTServiceProviderTest extends SandboxTestCase
      */
     public function testSingleton(): void
     {
-        config([
+        $this->app['config']->set([
             'jwt.key'            => 'singleton',
             'jwt.keys.singleton' => [
                 'algorithm' => 'HS512',

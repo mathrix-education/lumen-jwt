@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Mathrix\Lumen\JWT\Tests\Wrappers;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Mathrix\Lumen\JWT\Claims\ClaimsChecker;
 use Mathrix\Lumen\JWT\Exceptions\UnknownPayloadConfig;
 use Mathrix\Lumen\JWT\Tests\SandboxTestCase;
@@ -26,6 +27,8 @@ class PayloadConfigTest extends SandboxTestCase
     }
 
     /**
+     * @throws BindingResolutionException
+     *
      * @testdox throws an UnknownPayloadConfig exception when the config does not exists
      * @covers ::from
      */

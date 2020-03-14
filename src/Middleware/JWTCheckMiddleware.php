@@ -8,14 +8,13 @@ use Closure;
 use Illuminate\Http\Request;
 use Jose\Component\Checker\InvalidClaimException;
 use Jose\Component\Checker\MissingMandatoryClaimException;
-use JsonException;
 use Mathrix\Lumen\JWT\Drivers\Driver;
 
 class JWTCheckMiddleware
 {
     public const NAME = 'jwt.check';
     /** @var Driver $driver */
-    private Driver $driver;
+    private $driver;
 
     public function __construct(Driver $driver)
     {
@@ -30,7 +29,6 @@ class JWTCheckMiddleware
      *
      * @throws InvalidClaimException
      * @throws MissingMandatoryClaimException
-     * @throws JsonException
      */
     public function handle(Request $request, Closure $next)
     {

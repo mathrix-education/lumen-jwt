@@ -6,10 +6,9 @@ namespace Mathrix\Lumen\JWT\Tests\Drivers;
 
 use Jose\Component\Checker\InvalidClaimException;
 use Jose\Component\Checker\MissingMandatoryClaimException;
-use JsonException;
 use Mathrix\Lumen\JWT\Drivers\RSADriver;
-use Mathrix\Lumen\JWT\Tests\SandboxTestCase;
 use Mathrix\Lumen\JWT\Tests\DriverProvider;
+use Mathrix\Lumen\JWT\Tests\SandboxTestCase;
 use function collect;
 
 /**
@@ -36,7 +35,6 @@ class RSADriverTest extends SandboxTestCase
      *
      * @throws InvalidClaimException
      * @throws MissingMandatoryClaimException
-     * @throws JsonException
      *
      * @testdox      signs using $algorithm with the key size of $size bits
      * @dataProvider configProvider

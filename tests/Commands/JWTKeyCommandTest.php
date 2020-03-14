@@ -19,7 +19,6 @@ use function md5;
 use function octdec;
 use function sprintf;
 use function substr;
-use const JSON_THROW_ON_ERROR;
 
 /**
  * @testdox Artisan Command `jwt:key`
@@ -36,7 +35,7 @@ class JWTKeyCommandTest extends SandboxTestCase
      */
     private function decodeKey(string $keyPath): stdClass
     {
-        return json_decode(file_get_contents($keyPath), false, 512, JSON_THROW_ON_ERROR);
+        return json_decode(file_get_contents($keyPath), false, 512);
     }
 
     /**
