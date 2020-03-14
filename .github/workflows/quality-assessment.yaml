@@ -1,5 +1,7 @@
 name: Pipeline
-on: push
+on:
+  push:
+    branches: ['**']
 jobs:
   lint:
     name: Lint with PHP_CodeSniffer
@@ -8,10 +10,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Setup PHP
-        uses: shivammathur/setup-php@1.8.2
+        uses: shivammathur/setup-php@2.1.2
         with:
-          php-version: '7.4'
+          php-version: '7.2'
           coverage: none
+          tools: prestissimo
       - name: Install dependencies
         run: |
           composer install \
@@ -25,18 +28,24 @@ jobs:
   test:
     name: Test with PHPUnit
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: ['7.2', '7.3', '7.4']
+        lumen: ['^6.0', '^7.0']
     steps:
       - name: Checkout
         uses: actions/checkout@v1
       - name: Setup PHP
-        uses: shivammathur/setup-php@1.8.2
+        uses: shivammathur/setup-php@2.1.2
         with:
-          php-version: '7.4'
-          extension-csv: mbstring, gmp
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, gmp
           coverage: pcov
+          tools: prestissimo
       - name: Install dependencies
         run: |
-          composer install \
+          rm -rf vendor/ composer.lock
+          composer require --dev laravel/lumen-framework:${{ matrix.lumen }} \
             --optimize-autoloader \
             --prefer-dist \
             --no-ansi \
@@ -52,6 +61,7 @@ jobs:
             --coverage-text
       - name: Upload coverage reports
         uses: actions/upload-artifact@v1.0.0
+        if: matrix.php == '7.4' && matrix.lumen == '^7.0'
         with:
           name: coverage-reports
           path: storage/artifacts

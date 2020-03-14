@@ -11,7 +11,7 @@ class InvalidJWT extends UnauthorizedHttpException
 {
     public function __construct(?string $message = null, ?Throwable $previous = null)
     {
-        $message ??= 'Invalid JWT';
+        $message = $message ?? 'Invalid JWT';
         parent::__construct('Bearer', $message, $previous, 0, []);
     }
 }

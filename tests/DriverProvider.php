@@ -9,11 +9,14 @@ use Mathrix\Lumen\JWT\Drivers\ECDSADriver;
 use Mathrix\Lumen\JWT\Drivers\EdDSADriver;
 use Mathrix\Lumen\JWT\Drivers\HMACDriver;
 use Mathrix\Lumen\JWT\Drivers\RSADriver;
+use function class_basename;
+use function count;
+use function file_exists;
+use function storage_path;
+use function str_replace;
+use function unlink;
 
-/**
- *
- */
-class TestsUtils
+class DriverProvider
 {
     /**
      * @param string $path

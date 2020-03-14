@@ -18,13 +18,13 @@ use Jose\Component\Signature\JWSBuilder;
 use Jose\Component\Signature\JWSTokenSupport;
 use Jose\Component\Signature\JWSVerifier;
 use Jose\Component\Signature\Serializer\CompactSerializer;
-use JsonException;
-use Mathrix\Lumen\JWT\Claims\ClaimChecker;
+use Mathrix\Lumen\JWT\Claims\ClaimsChecker;
 use Mathrix\Lumen\JWT\Claims\ClaimsGenerator;
 use Mathrix\Lumen\JWT\Exceptions\InvalidAlgorithm;
 use Mathrix\Lumen\JWT\Exceptions\InvalidConfiguration;
 use Mathrix\Lumen\JWT\Exceptions\IO;
 use Mathrix\Lumen\JWT\Exceptions\MissingLibrary;
+use const JSON_PRETTY_PRINT;
 use function array_merge;
 use function chmod;
 use function class_basename;
@@ -39,8 +39,6 @@ use function is_readable;
 use function is_string;
 use function is_writable;
 use function json_encode;
-use const JSON_PRETTY_PRINT;
-use const JSON_THROW_ON_ERROR;
 
 /**
  * Base class for the JWT providers.
@@ -50,26 +48,26 @@ abstract class Driver
     public const ALGORITHM_NAMESPACE = 'Jose\\Component\\Signature\\Algorithm';
     public const KEY_PERMS           = 0600;
 
-    /** @var string The key location on the disk */
-    protected ?string $path = null;
+    /** @var string|null The key location on the disk */
+    protected $path;
     /** @var string The algorithm class */
-    protected string $algorithm;
+    protected $algorithm;
     /** @var JWK $jwk The JSON Web Key */
-    protected JWK $jwk;
+    protected $jwk;
 
     /** @var JWSBuilder The JSON Web Signature builder */
-    private JWSBuilder $builder;
+    private $builder;
     /** @var ClaimsGenerator $claimsGenerator The claims generator */
-    private ClaimsGenerator $claimsGenerator;
+    private $claimsGenerator;
     /** @var JWSVerifier The JSON Web Signature verifier */
-    private JWSVerifier $verifier;
+    private $verifier;
     /** @var CompactSerializer The serializer. */
-    protected CompactSerializer $serializer;
+    protected $serializer;
 
     /** @var HeaderCheckerManager $headerChecker The header checker */
-    private HeaderCheckerManager $headerChecker;
-    /** @var ClaimChecker $claimChecker The claim checker */
-    private ClaimChecker $claimChecker;
+    private $headerChecker;
+    /** @var ClaimsChecker $claimChecker The claim checker */
+    private $claimChecker;
 
     /**
      * @param array $keyConfig
@@ -93,7 +91,7 @@ abstract class Driver
             new AlgorithmChecker([$algorithmInstance->name()]),
         ], [new JWSTokenSupport()]);
 
-        $this->claimChecker = new ClaimChecker($claimsConfig);
+        $this->claimChecker = new ClaimsChecker($claimsConfig);
     }
 
     /**
@@ -319,7 +317,7 @@ abstract class Driver
      */
     private function writeKey(JWK $jwk): Driver
     {
-        $keyString = json_encode($jwk->jsonSerialize(), JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR, 512);
+        $keyString = json_encode($jwk->jsonSerialize(), JSON_PRETTY_PRINT, 512);
         file_put_contents($this->path, $keyString);
         chmod($this->path, self::KEY_PERMS);
 
@@ -383,7 +381,7 @@ abstract class Driver
         }
 
         $payload       = array_merge($payload, $this->claimsGenerator->generate());
-        $payloadString = json_encode($payload, JSON_THROW_ON_ERROR, 512);
+        $payloadString = json_encode($payload, 0, 512);
 
         $jws = $this->builder->create()
             ->withPayload($payloadString)
@@ -397,6 +395,20 @@ abstract class Driver
     }
 
     /**
+     * Serialize a JWS using the Compact Serialize.
+     *
+     * @see CompactSerializer
+     *
+     * @param JWS $jws the JSON Web Token to serialize.
+     *
+     * @return string
+     */
+    public function serialize(JWS $jws): string
+    {
+        return $this->serializer->serialize($jws);
+    }
+
+    /**
      * Verify a JWS claims.
      *
      * @param string|JWS $jws The JWS (plain JWS or string).
@@ -405,7 +417,6 @@ abstract class Driver
      *
      * @throws InvalidClaimException
      * @throws MissingMandatoryClaimException
-     * @throws JsonException
      */
     final public function check($jws): bool
     {

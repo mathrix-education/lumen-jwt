@@ -12,8 +12,6 @@ use Mathrix\Lumen\JWT\Commands\JWTBenchmarkCommand;
 use Mathrix\Lumen\JWT\Commands\JWTKeyCommand;
 use Mathrix\Lumen\JWT\Drivers\Driver;
 use Mathrix\Lumen\JWT\Utils\JWTConfig;
-use function app;
-use function config;
 
 /**
  * @property Application $app
@@ -31,7 +29,7 @@ class JWTServiceProvider extends ServiceProvider
         });
 
         /** @var AuthManager $auth */
-        $auth = app()->make('auth');
-        $auth->viaRequest(config('jwt.auth.driver_name', 'jwt'), new JWTUserResolver());
+        $auth = $this->app['auth'];
+        $auth->viaRequest($this->app['config']->get('jwt.auth.driver_name', 'jwt'), new JWTUserResolver());
     }
 }

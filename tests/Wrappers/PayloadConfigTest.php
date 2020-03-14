@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Mathrix\Lumen\JWT\Tests\Wrappers;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
+use Mathrix\Lumen\JWT\Claims\ClaimsChecker;
 use Mathrix\Lumen\JWT\Exceptions\UnknownPayloadConfig;
 use Mathrix\Lumen\JWT\Tests\SandboxTestCase;
-use Mathrix\Lumen\JWT\Claims\ClaimChecker;
 
 /**
  * @testdox Payload Configuration
- * @coversDefaultClass \Mathrix\Lumen\JWT\Claims\ClaimChecker
+ * @coversDefaultClass \Mathrix\Lumen\JWT\Claims\ClaimsChecker
  */
 class PayloadConfigTest extends SandboxTestCase
 {
@@ -20,18 +21,20 @@ class PayloadConfigTest extends SandboxTestCase
      */
     public function testFromExisting(): void
     {
-        $config = ClaimChecker::from('default');
+        $config = ClaimsChecker::from('default');
 
         $this->assertNotNull($config);
     }
 
     /**
+     * @throws BindingResolutionException
+     *
      * @testdox throws an UnknownPayloadConfig exception when the config does not exists
      * @covers ::from
      */
     public function testFromNonExisting(): void
     {
         $this->expectException(UnknownPayloadConfig::class);
-        ClaimChecker::from('default-non-existing');
+        ClaimsChecker::from('default-non-existing');
     }
 }

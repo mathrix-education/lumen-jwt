@@ -17,6 +17,7 @@
 
     <!-- Inclusions -->
     <file>src</file>
+    <file>tests</file>
 
     <!-- Rules inherited from Doctrine -->
     <rule ref="Mathrix"/>

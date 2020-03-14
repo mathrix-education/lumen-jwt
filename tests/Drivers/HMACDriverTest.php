@@ -4,59 +4,62 @@ declare(strict_types=1);
 
 namespace Mathrix\Lumen\JWT\Tests\Drivers;
 
+use Jose\Component\Checker\InvalidClaimException;
+use Jose\Component\Checker\MissingMandatoryClaimException;
 use Mathrix\Lumen\JWT\Drivers\HMACDriver;
+use Mathrix\Lumen\JWT\Tests\DriverProvider;
 use Mathrix\Lumen\JWT\Tests\SandboxTestCase;
-use Mathrix\Lumen\JWT\Tests\TestsUtils;
+use function collect;
 
 /**
  * @testdox HMAC Driver
- * @coversDefaultClass \Mathrix\Lumen\JWT\Drivers\ECDSADriver
+ * @coversDefaultClass \Mathrix\Lumen\JWT\Drivers\HMACDriver
  */
 class HMACDriverTest extends SandboxTestCase
 {
-    private HMACDriver $instance;
-
     public function configProvider(): array
     {
-        return collect(TestsUtils::hmac())
+        return collect(DriverProvider::hmac())
             ->map(static function (array $config) {
-                unset($config['kty']);
+                unset($config['kty'], $config['path']);
+                $config['size'] = (int)$config['size'];
 
                 return $config;
             })
             ->toArray();
     }
 
-    public function init(string $algorithm, string $size, string $path): void
-    {
-        $this->instance = new HMACDriver([
-            'algorithm' => $algorithm,
-            'size'      => (int)$size,
-            'path'      => $path,
-        ]);
-    }
-
     /**
+     * @param string $algorithm
+     * @param int    $size
+     *
+     * @throws InvalidClaimException
+     * @throws MissingMandatoryClaimException
+     *
      * @testdox      signs using $algorithm with the key size of $size bits
      * @dataProvider configProvider
-     *
-     * @param string $algorithm
-     * @param string $size
-     * @param string $path
+     * @covers ::getSupportedAlgorithms
+     * @covers ::getMinimumKeySize
+     * @covers ::getValidationRules
+     * @covers ::generate
+     * @covers ::postApply
+     * @covers ::sign
+     * @covers ::unserialize
+     * @covers ::check
+     * @covers ::verify
      */
-    public function testSignCheckVerify(string $algorithm, string $size, string $path): void
+    public function testSignCheckVerify(string $algorithm, int $size): void
     {
-        TestsUtils::deleteKeyIfExists($path);
-        $this->init($algorithm, $size, $path);
+        $driver = new HMACDriver([
+            'algorithm' => $algorithm,
+            'size'      => $size,
+        ]);
 
-        $payload = [
-            'hello' => 'world',
-        ];
+        $jws   = $driver->sign(['hello' => 'world'], false);
+        $token = $driver->serialize($jws);
+        $jws   = $driver->unserialize($token);
 
-        $jwt = $this->instance->sign($payload);
-        $jws = $this->instance->unserialize($jwt);
-        $this->assertTrue($this->instance->check($jws));
-        $this->assertTrue($this->instance->verify($jws));
-        TestsUtils::deleteKeyIfExists($path);
+        $this->assertTrue($driver->check($jws));
+        $this->assertTrue($driver->verify($jws));
     }
 }

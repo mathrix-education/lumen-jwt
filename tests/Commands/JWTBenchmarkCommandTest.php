@@ -14,6 +14,7 @@ class JWTBenchmarkCommandTest extends SandboxTestCase
 {
     /**
      * @testdox runs the benchmark using all available algorithms
+     * @covers ::handle
      */
     public function testBenchmark(): void
     {

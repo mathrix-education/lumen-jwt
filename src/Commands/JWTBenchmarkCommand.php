@@ -60,7 +60,8 @@ class JWTBenchmarkCommand extends Command
         ],
     ];
 
-    private array  $results = [];
+    /** @var array $results */
+    private $results = [];
 
     public function handle(): void
     {
