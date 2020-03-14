@@ -65,40 +65,40 @@ jobs:
         with:
           name: coverage-reports
           path: storage/artifacts
-#  analyse:
-#    name: Analyse with Sonar Scanner
-#    needs: test
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout
-#        uses: actions/checkout@v1
-#      - name: Unshallow
-#        run: git checkout "${GITHUB_REF:11}"
-#      - name: Download coverage reports
-#        uses: actions/download-artifact@v1.0.0
-#        with:
-#          name: coverage-reports
-#          path: storage/artifacts
-#      - name: Setup sonar.properties
-#        run: |
-#          # Setup version
-#          VERSION=$(jq -r .version composer.json)
-#          echo "sonar.projectVersion=${VERSION}" >> sonar-project.properties
-#
-#          # Setup branches
-#          CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-#          if [[ "$CURRENT_BRANCH" = "dev" ]]; then
-#            PARENT_BRANCH="master"
-#          else
-#            PARENT_BRANCH="dev"
-#          fi
-#
-#          echo "sonar.branch.name=${CURRENT_BRANCH}" >> sonar-project.properties
-#          echo "sonar.branch.target=${PARENT_BRANCH}" >> sonar-project.properties
-#      - name: Analyse with Sonar Scanner
-#        uses: mathrix-education/sonar-scanner@master
-#        with:
-#          version: 4.2.0.1873 # required
-#          typescript: false
-#          scan: true
-#          args: -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+  analyse:
+    name: Analyse with Sonar Scanner
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Unshallow
+        run: git checkout "${GITHUB_REF:11}"
+      - name: Download coverage reports
+        uses: actions/download-artifact@v1.0.0
+        with:
+          name: coverage-reports
+          path: storage/artifacts
+      - name: Setup sonar.properties
+        run: |
+          # Setup version
+          VERSION=$(jq -r .version composer.json)
+          echo "sonar.projectVersion=${VERSION}" >> sonar-project.properties
+
+          # Setup branches
+          CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          if [[ "$CURRENT_BRANCH" = "dev" ]]; then
+            PARENT_BRANCH="master"
+          else
+            PARENT_BRANCH="dev"
+          fi
+
+          echo "sonar.branch.name=${CURRENT_BRANCH}" >> sonar-project.properties
+          echo "sonar.branch.target=${PARENT_BRANCH}" >> sonar-project.properties
+      - name: Analyse with Sonar Scanner
+        uses: mathrix-education/sonar-scanner@master
+        with:
+          version: 4.2.0.1873 # required
+          typescript: false
+          scan: true
+          args: -Dsonar.login=${{ secrets.SONAR_TOKEN }}
