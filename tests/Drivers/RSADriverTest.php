@@ -36,7 +36,6 @@ class RSADriverTest extends SandboxTestCase
      *
      * @throws InvalidClaimException
      * @throws MissingMandatoryClaimException
-     * @throws JsonException
      *
      * @testdox      signs using $algorithm with the key size of $size bits
      * @dataProvider configProvider

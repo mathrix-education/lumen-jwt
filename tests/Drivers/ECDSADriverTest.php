@@ -35,7 +35,6 @@ class ECDSADriverTest extends SandboxTestCase
      *
      * @throws InvalidClaimException
      * @throws MissingMandatoryClaimException
-     * @throws JsonException
      *
      * @testdox      signs using $algorithm with the curve $curve
      * @dataProvider configProvider

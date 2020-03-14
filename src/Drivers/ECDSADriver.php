@@ -26,7 +26,7 @@ class ECDSADriver extends Driver
     public const CURVES     = [self::CURVE_P256, self::CURVE_P384, self::CURVE_P521];
 
     /** @var string The elliptic curve to use. */
-    private string $curve;
+    private $curve;
 
     /**
      * @inheritDoc

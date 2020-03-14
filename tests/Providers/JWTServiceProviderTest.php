@@ -21,7 +21,7 @@ class JWTServiceProviderTest extends SandboxTestCase
      */
     public function testSingleton(): void
     {
-        config([
+        $this->app['config']->set([
             'jwt.key'            => 'singleton',
             'jwt.keys.singleton' => [
                 'algorithm' => 'HS512',

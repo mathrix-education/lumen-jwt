@@ -31,7 +31,7 @@ class RSADriver extends Driver
     ];
 
     /** @var int The RSA key size in bits. */
-    private int $size;
+    private $size;
 
     /**
      * @inheritDoc

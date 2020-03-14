@@ -18,8 +18,6 @@ use function collect;
  */
 class EdDSADriverTest extends SandboxTestCase
 {
-    private EdDSADriver $instance;
-
     public function configProvider(): array
     {
         return collect(DriverProvider::eddsa())

@@ -11,7 +11,8 @@ use Ramsey\Uuid\Uuid;
 
 class ClaimsGenerator
 {
-    private array $config;
+    /** @var array $config */
+    private $config;
 
     public function __construct($config)
     {

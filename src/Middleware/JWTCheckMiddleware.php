@@ -15,7 +15,7 @@ class JWTCheckMiddleware
 {
     public const NAME = 'jwt.check';
     /** @var Driver $driver */
-    private Driver $driver;
+    private $driver;
 
     public function __construct(Driver $driver)
     {
@@ -30,7 +30,6 @@ class JWTCheckMiddleware
      *
      * @throws InvalidClaimException
      * @throws MissingMandatoryClaimException
-     * @throws JsonException
      */
     public function handle(Request $request, Closure $next)
     {

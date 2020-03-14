@@ -21,7 +21,7 @@ class EdDSADriver extends Driver
     public const ALGORITHMS    = [EdDSA::class];
 
     /** @var string The elliptic curve to use. */
-    private string $curve;
+    private $curve;
 
     /**
      * @inheritDoc
