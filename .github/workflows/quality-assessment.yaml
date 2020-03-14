@@ -59,11 +59,12 @@ jobs:
             --log-junit=storage/artifacts/phpunit-junit.xml \
             --coverage-clover=storage/artifacts/phpunit-coverage.xml \
             --coverage-text
-#      - name: Upload coverage reports
-#        uses: actions/upload-artifact@v1.0.0
-#        with:
-#          name: coverage-reports
-#          path: storage/artifacts
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v1.0.0
+        if: matrix.php == '7.4' && matrix.lumen == '^7.0'
+        with:
+          name: coverage-reports
+          path: storage/artifacts
 #  analyse:
 #    name: Analyse with Sonar Scanner
 #    needs: test
