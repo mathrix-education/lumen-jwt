@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Mathrix\Lumen\JWT;
+namespace Mathrix\Lumen\JWT\Providers;
 
 use Illuminate\Auth\AuthManager;
 use Illuminate\Support\ServiceProvider;
